@@ -45,7 +45,7 @@ class ProjectButton extends StatelessWidget {
                             vertical: 8.0,
                           ),
                           child: Text(
-                            "Title",
+                            project.title!,
                             style: GoogleFonts.notoSans(
                               fontWeight: FontWeight.bold,
                               fontSize: constraints.maxWidth / 12,
@@ -53,7 +53,7 @@ class ProjectButton extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          "Descriptions",
+                          project.description!,
                           style: GoogleFonts.notoSans(
                             fontSize: constraints.maxWidth / 14,
                           ),

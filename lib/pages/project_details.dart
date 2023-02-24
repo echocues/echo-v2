@@ -1,3 +1,7 @@
+import 'package:echocues/api/models/project_model.dart';
+import 'package:echocues/pages/project_details/playmode_page.dart';
+import 'package:echocues/pages/project_details/soundcues_page.dart';
+import 'package:echocues/pages/project_details/timelines_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -8,12 +12,15 @@ class ProjectDetailsPageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ProjectModel model = ModalRoute.of(context)!.settings.arguments as ProjectModel;
+    
     return DefaultTabController(
       length: 3,
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            "Project Detail",
+            // model.title!,
+            "Project Details",
             style: GoogleFonts.poppins(
               fontWeight: FontWeight.bold,
             ),
@@ -61,7 +68,9 @@ class ProjectDetailsPageWidget extends StatelessWidget {
         ),
         body: const TabBarView(
           children: [
-            
+            SoundCuesPageWidget(),
+            TimelinePageWidget(),
+            PlayModePageWidget(),
           ],
         ),
       ),

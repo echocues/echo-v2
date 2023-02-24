@@ -3,9 +3,9 @@ import 'timeline_model.dart';
 
 class ProjectModel {
   ProjectModel({
-      this.projectId, 
-      this.title, 
-      this.description, 
+      this.projectId = "projectId", 
+      this.title = "Title",
+      this.description = "Description", 
       this.soundCues, 
       this.timeline,});
 
