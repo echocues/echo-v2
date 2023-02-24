@@ -4,8 +4,7 @@ class SoundCue {
     required this.file,
     required this.easeIn,
     required this.easeOut,
-    required this.volume,
-    required this.pitch,});
+    required this.volume,});
 
   SoundCue.fromJson(dynamic json) {
     name = json['name'];
@@ -13,7 +12,6 @@ class SoundCue {
     easeIn = json['easeIn'];
     easeOut = json['easeOut'];
     volume = json['volume'];
-    pitch = json['pitch'];
   }
 
   String? name;
@@ -21,7 +19,6 @@ class SoundCue {
   bool? easeIn;
   bool? easeOut;
   double? volume;
-  double? pitch;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -30,7 +27,6 @@ class SoundCue {
     map['easeIn'] = easeIn;
     map['easeOut'] = easeOut;
     map['volume'] = volume;
-    map['pitch'] = pitch;
     return map;
   }
 }

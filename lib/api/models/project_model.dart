@@ -1,5 +1,6 @@
+import 'package:echocues/api/models/scene_model.dart';
+
 import 'soundcue_model.dart';
-import 'timeline_model.dart';
 
 class ProjectModel {
   ProjectModel({
@@ -7,23 +8,23 @@ class ProjectModel {
       this.title = "Title",
       this.description = "Description", 
       this.soundCues, 
-      this.timeline,});
+      this.scenes,});
 
   ProjectModel.fromJson(dynamic json) {
     projectId = json['projectId'];
     title = json['title'];
     description = json['description'];
     soundCues = [];
-    timeline = [];
+    scenes = [];
     
     if (json['soundCues'] != null) {
       json['soundCues'].forEach((v) {
         soundCues!.add(SoundCue.fromJson(v));
       });
     }
-    if (json['timeline'] != null) {
-      json['timeline'].forEach((v) {
-        timeline!.add(Timeline.fromJson(v));
+    if (json['scenes'] != null) {
+      json['scenes'].forEach((v) {
+        scenes!.add(SceneModel.fromJson(v));
       });
     }
   }
@@ -32,7 +33,7 @@ class ProjectModel {
   String? title;
   String? description;
   List<SoundCue>? soundCues;
-  List<Timeline>? timeline;
+  List<SceneModel>? scenes;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -42,8 +43,8 @@ class ProjectModel {
     if (soundCues != null) {
       map['soundCues'] = soundCues!.map((v) => v.toJson()).toList();
     }
-    if (timeline != null) {
-      map['timeline'] = timeline!.map((v) => v.toJson()).toList();
+    if (scenes != null) {
+      map['scenes'] = scenes!.map((v) => v.toJson()).toList();
     }
     return map;
   }

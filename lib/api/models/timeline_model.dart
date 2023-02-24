@@ -1,10 +1,10 @@
-class Timeline {
-  Timeline({
+class TimelineEventModel {
+  TimelineEventModel({
       this.time, 
       this.cues, 
       this.notes,});
 
-  Timeline.fromJson(dynamic json) {
+  TimelineEventModel.fromJson(dynamic json) {
     time = json['time'];
     cues = json['cues'] != null ? json['cues'].cast<String>() : [];
     notes = json['notes'] != null ? json['notes'].cast<String>() : [];

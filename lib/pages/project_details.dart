@@ -1,4 +1,6 @@
+import 'package:echocues/api/models/scene_model.dart';
 import 'package:echocues/api/models/soundcue_model.dart';
+import 'package:echocues/api/models/timeline_model.dart';
 import 'package:echocues/pages/project_details/playmode_page.dart';
 import 'package:echocues/pages/project_details/soundcues_page.dart';
 import 'package:echocues/pages/project_details/timelines_page.dart';
@@ -47,7 +49,7 @@ class ProjectDetailsPageWidget extends StatelessWidget {
                       padding: EdgeInsets.all(8.0),
                       child: Icon(Icons.timeline),
                     ),
-                    Text("Timeline"),
+                    Text("Scenes"),
                   ],
                 ),
               ),
@@ -69,9 +71,17 @@ class ProjectDetailsPageWidget extends StatelessWidget {
         body: TabBarView(
           children: [
             SoundCuesPageWidget(soundCuesData: [
-              SoundCue(name: "Test", file: "Test.mp3", easeIn: true, easeOut: true, volume: 1.0, pitch: 1.0)
+              SoundCue(name: "Test", file: "Test.mp3", easeIn: true, easeOut: true, volume: 1.0,)
             ]),
-            const TimelinePageWidget(),
+            ScenesPageWidget(scenes: [
+              SceneModel(name: "Scene 1", events: [
+                TimelineEventModel(
+                  time: "00:00:01",
+                  cues: [],
+                  notes: [],
+                ),
+              ]),
+            ],),
             const PlayModePageWidget(),
           ],
         ),
