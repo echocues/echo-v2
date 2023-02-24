@@ -1,4 +1,4 @@
-import 'package:echocues/api/models/project_model.dart';
+import 'package:echocues/api/models/soundcue_model.dart';
 import 'package:echocues/pages/project_details/playmode_page.dart';
 import 'package:echocues/pages/project_details/soundcues_page.dart';
 import 'package:echocues/pages/project_details/timelines_page.dart';
@@ -66,11 +66,13 @@ class ProjectDetailsPageWidget extends StatelessWidget {
             ],
           ),
         ),
-        body: const TabBarView(
+        body: TabBarView(
           children: [
-            SoundCuesPageWidget(),
-            TimelinePageWidget(),
-            PlayModePageWidget(),
+            SoundCuesPageWidget(soundCuesData: [
+              SoundCue(name: "Test", file: "Test.mp3", easeIn: true, easeOut: true, volume: 1.0, pitch: 1.0)
+            ]),
+            const TimelinePageWidget(),
+            const PlayModePageWidget(),
           ],
         ),
       ),
