@@ -91,6 +91,10 @@ class ServerCaller {
   }
   
   static Source audioSource(String projectId, String filename) {
-    return UrlSource("$_serverUrl/audio/$projectId/$filename");
+    return UrlSource(audioSourceUrl(projectId, filename));
+  }
+
+  static String audioSourceUrl(String projectId, String filename) {
+    return "$_serverUrl/audio/$projectId/$filename";
   }
 }
