@@ -5,7 +5,10 @@ import 'package:echocues/api/models/ease_settings.dart';
 import 'package:echocues/api/server_caller.dart';
 import 'package:echocues/components/ease_setting_tweaker.dart';
 import 'package:echocues/components/labeled_widget.dart';
+import 'package:echocues/components/sound_file_select.dart';
+import 'package:echocues/components/volume_tweaker.dart';
 import 'package:echocues/utilities/audio_manager.dart';
+import 'package:echocues/utilities/text_helper.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -87,10 +90,7 @@ class _SoundCuesPageWidgetState extends State<SoundCuesPageWidget> {
                         );
                       },
                     ),
-                    title: Text(
-                      path.basenameWithoutExtension(e.soundCue.fileName),
-                      style: GoogleFonts.notoSans(),
-                    ),
+                    title: TextHelper.title(ctx, path.basenameWithoutExtension(e.soundCue.fileName)),
                     trailing: IconButton(
                       onPressed: () {
                         setState(() {
@@ -109,37 +109,7 @@ class _SoundCuesPageWidgetState extends State<SoundCuesPageWidget> {
                         width: constraints.maxWidth,
                         child: Column(
                           children: [
-                            Row(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 8.0),
-                                  child: Text(
-                                    "Sound File: \"${e.soundCue.fileName}\"",
-                                    style: GoogleFonts.notoSans(),
-                                  ),
-                                ),
-                                TextButton(
-                                    child: Text(
-                                      "Select Sound File",
-                                      style: GoogleFonts.notoSans(),
-                                    ),
-                                    onPressed: () async {
-                                      FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.audio,);
-                                      if (result != null) {
-                                        PlatformFile file = result.files.single;
-                                        Uint8List? data = file.bytes;
-                                        if (data == null) return;
-                                        var instance = await SharedPreferences.getInstance();
-                                        var projectId = instance.getString("editingProject");
-                                        await ServerCaller.uploadAudio(projectId!, file.name, data)
-                                            .whenComplete(() => setState(() {
-                                                  e.soundCue.fileName =
-                                                      file.name;
-                                                }));
-                                      }
-                                    }),
-                              ],
-                            ),
+                            SoundFileSelector(soundCue: e.soundCue,),
                             EaseSettingsTweaker(
                               settings: e.soundCue.easeIn,
                               label: "Ease In",
@@ -148,23 +118,7 @@ class _SoundCuesPageWidgetState extends State<SoundCuesPageWidget> {
                               settings: e.soundCue.easeOut,
                               label: "Ease Out",
                             ),
-                            LabeledWidget(
-                              label: "Volume: ",
-                              child: Row(
-                                children: [
-                                  Text(
-                                    e.soundCue.volume.toStringAsFixed(1),
-                                    style: GoogleFonts.notoSans(),
-                                  ),
-                                  Slider(
-                                    value: e.soundCue.volume,
-                                    min: 0.0,
-                                    max: 1.0,
-                                    onChanged: (value) => setState(() => e.soundCue.volume = value),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            VolumeTweaker(soundCue: e.soundCue,),
                           ],
                         ),
                       );

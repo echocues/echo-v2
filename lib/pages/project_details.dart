@@ -4,6 +4,7 @@ import 'package:echocues/api/server_caller.dart';
 import 'package:echocues/pages/project_details/playmode_page.dart';
 import 'package:echocues/pages/project_details/soundcues_page.dart';
 import 'package:echocues/pages/project_details/timelines_page.dart';
+import 'package:echocues/utilities/text_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -70,48 +71,42 @@ class _ProjectDetailsPageWidgetState extends State<ProjectDetailsPageWidget> {
           length: 3,
           child: Scaffold(
             appBar: AppBar(
-              title: Text(
-                // model.title!,
-                "Project Details",
-                style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              title: TextHelper.display(ctx, "Project: ${_projectModel!.title}"),
               bottom: TabBar(
                 tabs: [
                   Tab(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Padding(
+                      children: [
+                        const Padding(
                           padding: EdgeInsets.all(8.0),
                           child: Icon(Icons.surround_sound),
                         ),
-                        Text("Sound Cues"),
+                        TextHelper.title(ctx, "Sound Cues"),
                       ],
                     ),
                   ),
                   Tab(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Padding(
+                      children: [
+                        const Padding(
                           padding: EdgeInsets.all(8.0),
                           child: Icon(Icons.theaters),
                         ),
-                        Text("Scenes"),
+                        TextHelper.title(ctx, "Scenes"),
                       ],
                     ),
                   ),
                   Tab(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Padding(
+                      children: [
+                        const Padding(
                           padding: EdgeInsets.all(8.0),
                           child: Icon(Icons.play_arrow),
                         ),
-                        Text("Play Mode"),
+                        TextHelper.title(ctx, "Play Mode"),
                       ],
                     ),
                   ),

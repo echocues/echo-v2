@@ -1,6 +1,7 @@
 import 'package:echocues/pages/home.dart';
 import 'package:echocues/pages/project_details.dart';
 import 'package:echocues/pages/projects.dart';
+import 'package:echocues/utilities/utils.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData.dark(),
+      theme: Utils.defaultDarkTheme(),
       initialRoute: ProjectPageWidget.route,
       routes: {
         HomePageWidget.route: (ctx) => const HomePageWidget(),
