@@ -1,12 +1,20 @@
-import 'package:echocues/api/models/project_model.dart';
+import 'package:echocues/api/server_caller.dart';
 import 'package:echocues/pages/project_details.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../api/models/project.dart';
+
+enum _ContextOptions {
+  delete,
+  rename,
+}
+
 class ProjectButton extends StatelessWidget {
   final ProjectModel project;
+  final Function onDelete;
 
-  const ProjectButton({Key? key, required this.project}) : super(key: key);
+  const ProjectButton({Key? key, required this.project, required this.onDelete}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +53,7 @@ class ProjectButton extends StatelessWidget {
                             vertical: 8.0,
                           ),
                           child: Text(
-                            project.title!,
+                            project.title,
                             style: GoogleFonts.notoSans(
                               fontWeight: FontWeight.bold,
                               fontSize: constraints.maxWidth / 12,
@@ -53,11 +61,36 @@ class ProjectButton extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          project.description!,
+                          project.description,
                           style: GoogleFonts.notoSans(
                             fontSize: constraints.maxWidth / 14,
                           ),
                         ),
+                        const Spacer(),
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: PopupMenuButton<_ContextOptions>(
+                            splashRadius: 15,
+                            itemBuilder: (BuildContext context) => [
+                              const PopupMenuItem(
+                                value: _ContextOptions.delete,
+                                child: Text("Delete"),
+                              ),
+                            ],
+                            icon: const Icon(Icons.more_vert),
+                            onSelected: (option) async {
+                              switch (option) {
+                                case _ContextOptions.delete:
+                                  await ServerCaller.deleteProject(project.projectId)
+                                    .whenComplete(() => onDelete());
+                                  break;
+                                case _ContextOptions.rename:
+                                  // TODO: Handle this case.
+                                  break;
+                              }
+                            },
+                          ),
+                        )
                       ],
                     );
                   },

@@ -1,34 +1,32 @@
-import 'package:echocues/api/models/scene_model.dart';
-import 'package:echocues/api/models/timeline_model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class ScenesPageWidget extends StatefulWidget {
-  final List<SceneModel> _scenes;
+import '../../api/models/event.dart';
+import '../../api/models/scene.dart';
 
-  const ScenesPageWidget({Key? key, required List<SceneModel> scenes})
-      : _scenes = scenes,
-        super(key: key);
+class ScenesPageWidget extends StatefulWidget {
+  final List<SceneModel> scenes;
+
+  const ScenesPageWidget({Key? key, required this.scenes}) : super(key: key);
 
   @override
-  State<ScenesPageWidget> createState() => _ScenesPageWidgetState(scenes: _scenes);
+  State<ScenesPageWidget> createState() => _ScenesPageWidgetState();
 }
 
 class _ScenesPageWidgetState extends State<ScenesPageWidget> {
-  final List<SceneModel> _scenes;
   late List<ScenePanel> _events;
 
-  _ScenesPageWidgetState({required List<SceneModel> scenes}) : _scenes = scenes;
+  _ScenesPageWidgetState();
 
   @override
   void initState() {
     super.initState();
 
     _events = [];
-    for (SceneModel sceneModel in _scenes) {
+    for (SceneModel sceneModel in widget.scenes) {
       _events.add(ScenePanel(
-        sceneName: sceneModel.name!,
-        events: sceneModel.events!.map((e) => TimelineEventPanel(timelineEventModel: e)).toList(),
+        sceneName: sceneModel.name,
+        events: sceneModel.events.map((e) => TimelineEventPanel(timelineEventModel: e)).toList(),
         isExpanded: false,
       ));
     }
@@ -65,7 +63,7 @@ class _ScenesPageWidgetState extends State<ScenesPageWidget> {
                   return ExpansionPanel(
                     headerBuilder: (ctx, expanded) {
                       return ListTile(
-                        title: Text(event.timelineEventModel.time!),
+                        title: Text(event.timelineEventModel.time.toString()),
                       );
                     },
                     // this should be the notes and the cues
@@ -96,7 +94,7 @@ class ScenePanel {
 }
 
 class TimelineEventPanel {
-  TimelineEventModel timelineEventModel;
+  EventModel timelineEventModel;
   bool isExpanded;
   
   TimelineEventPanel({
