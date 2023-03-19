@@ -1,6 +1,5 @@
 import 'package:echocues/pages/projects.dart';
 import 'package:flutter/material.dart';
-import 'package:stockholm/stockholm.dart';
 
 class HomePageWidget extends StatelessWidget {
   static const String route = "/";
@@ -13,12 +12,12 @@ class HomePageWidget extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Echo Cues"),
         actions: [
-          StockholmButton(
+          TextButton(
             child: const Text("Projects"),
             onPressed: () {
               Navigator.pushNamed(context, ProjectPageWidget.route);
-            }, 
-          )
+            },
+          ),
         ],
       ),
       body: Container(

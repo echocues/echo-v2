@@ -2,7 +2,6 @@ import 'package:echocues/api/server_caller.dart';
 import 'package:echocues/components/project_button.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:stockholm/stockholm.dart';
 
 import '../api/models/project.dart';
 
@@ -47,7 +46,7 @@ class _ProjectPageWidgetState extends State<ProjectPageWidget> {
             ),
           ),
           actions: [
-            StockholmButton(
+            TextButton(
               child: Text(
                 "Create Project",
                 style: GoogleFonts.poppins(),
@@ -93,9 +92,8 @@ class _ProjectPageWidgetState extends State<ProjectPageWidget> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Padding(
-                              padding:
-                                  const EdgeInsets.only(right: 16, bottom: 16),
-                              child: StockholmButton(
+                              padding: const EdgeInsets.only(right: 16, bottom: 16),
+                              child: TextButton(
                                 child: Text(
                                   "Confirm",
                                   style: GoogleFonts.notoSans(),
@@ -103,16 +101,15 @@ class _ProjectPageWidgetState extends State<ProjectPageWidget> {
                                 onPressed: () async {
                                   await ServerCaller.createProject("AYJ", _titleInput.text, _descriptionInput.text)
                                       .whenComplete(() => setState(() {
-                                            _projects = ServerCaller.getProjects("AYJ");
-                                            Navigator.pop(dialogContext);
-                                      }));
+                                    _projects = ServerCaller.getProjects("AYJ");
+                                    Navigator.pop(dialogContext);
+                                  }));
                                 },
                               ),
                             ),
                             Padding(
-                              padding:
-                                  const EdgeInsets.only(right: 16, bottom: 16),
-                              child: StockholmButton(
+                              padding: const EdgeInsets.only(right: 16, bottom: 16),
+                              child: TextButton(
                                 child: Text(
                                   "Cancel",
                                   style: GoogleFonts.notoSans(),

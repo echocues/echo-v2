@@ -397,14 +397,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.11.0"
-  stockholm:
-    dependency: "direct main"
-    description:
-      name: stockholm
-      sha256: "7bda41a22dab8fbbcda539a927adc31fa5036e8259f2c58c2d091113c45df4da"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.3"
   stream_channel:
     dependency: transitive
     description:

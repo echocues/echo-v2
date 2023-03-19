@@ -9,12 +9,10 @@ typedef SetEaseFunction = void Function(Function);
 class EaseSettingsTweaker extends StatefulWidget {
   final String label;
   final EaseSettings settings;
-  final SetEaseFunction setEaseFunction;
 
   const EaseSettingsTweaker(
       {Key? key,
       required this.settings,
-      required this.setEaseFunction,
       required this.label})
       : super(key: key);
 

@@ -37,7 +37,7 @@ class AudioManager {
       volume: 0,
       position: position,
     );
-    
+
     if (!soundCue.easeIn.enabled) {
       await audioPlayer.setVolume(soundCue.volume);
     } else {
@@ -67,6 +67,8 @@ class AudioManager {
       if (endPremature) {
         prematureStart ??= currentSecond;
         mappedValue = 1 - Utils.mapRange(currentSecond - prematureStart!, 0, soundCue.easeOut.duration, 0, 1);
+        // print("Fade out premature: $currentSecond, $mappedValue");
+
       } else {
         var fadeStart = totalDuration - soundCue.easeOut.duration;
         if (currentSecond < fadeStart) {
@@ -74,8 +76,9 @@ class AudioManager {
         }
 
         mappedValue = 1 - Utils.mapRange(currentSecond, fadeStart, totalDuration, 0, 1);
+        // print("Fade out: $fadeStart, $currentSecond, $mappedValue");
       }
-
+      
       if (mappedValue < 0) {
         // not time to fade yet
         return;
@@ -83,11 +86,9 @@ class AudioManager {
 
       await audioPlayer.setVolume(eval(mappedValue));
 
-      if (mappedValue == 0) {
-        if (fadeOut == null) return;
-        fadeOut!.cancel();
-        fadeOut = null;
+      if (mappedValue <= 0) {
         audioPlayer.stop();
+        fadeOut!.cancel();
         cleanup();
       }
     });
