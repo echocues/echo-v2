@@ -93,7 +93,7 @@ class AudioManager {
       await audioPlayer.setVolume(eval(mappedValue, soundCue.volume));
 
       if (mappedValue <= 0) {
-        audioPlayer.stop();
+        await audioPlayer.stop();
         fadeOut!.cancel();
         cleanup();
       }
