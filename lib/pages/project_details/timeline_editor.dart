@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:collection';
 import 'dart:ui';
 
@@ -85,7 +84,7 @@ class _TimelineEditorState extends State<TimelineEditor> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.play_arrow_outlined),
+                        const Icon(Icons.play_arrow_outlined),
                         TextHelper.normal(ctx, "Run Timeline - WORK IN PROGRESS"),
                       ],
                     ),
@@ -215,7 +214,7 @@ class _TimelinePainter extends CustomPainter {
 
     var maxRows = 1;
 
-    for (EventModel event in events!) {
+    for (EventModel event in events) {
       var eventTime = event.time.toSeconds() - horizontalOffsetSeconds;
 
       // is not in the view

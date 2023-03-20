@@ -41,10 +41,10 @@ class _EaseSettingsTweakerState extends State<EaseSettingsTweaker> {
                 width: constraints.maxWidth / 6,
                 child: ValidatedTextField<double>(
                   value: widget.settings.duration,
+                  defaultValue: 0.0,
                   label: "Ease Duration",
-                  onChanged: (value) {
-                    widget.settings.duration = value;
-                  },
+                  onChanged: (value) => widget.settings.duration = value,
+                  convertToString: (value) => value.toStringAsFixed(2),
                   validator: (str) => double.tryParse(str),
                 ),
               ),

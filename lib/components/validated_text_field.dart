@@ -1,27 +1,31 @@
 import 'package:flutter/material.dart';
 
 typedef Validator<T> = T? Function(String);
+typedef OnChanged<T> = void Function(T);
+typedef ToString<T> = String Function(T);
 
 class ValidatedTextField<T> extends StatefulWidget {
   
   final T value;
-  final void Function(T)? onChanged;
+  final T defaultValue;
+  final OnChanged<T>? onChanged;
+  final ToString<T>? convertToString;
   final String label;
   final Validator<T> validator;
 
-  const ValidatedTextField({super.key, required this.value, this.onChanged, required this.label, required this.validator});
+  const ValidatedTextField({super.key, required this.value, this.onChanged, required this.label, required this.validator, required this.defaultValue, this.convertToString});
 
   @override
-  State<ValidatedTextField> createState() => _ValidatedTextFieldState();
+  State<ValidatedTextField<T>> createState() => _ValidatedTextFieldState<T>();
 }
 
-class _ValidatedTextFieldState extends State<ValidatedTextField> {
+class _ValidatedTextFieldState<T> extends State<ValidatedTextField<T>> {
   final TextEditingController _controller = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   
   @override
   Widget build(BuildContext context) {
-    _controller.text = widget.value.toStringAsFixed(2);
+    _controller.text = widget.convertToString == null ? widget.value.toString() : widget.convertToString!(widget.value);
     
     return Form(
       key: _formKey,
@@ -35,9 +39,8 @@ class _ValidatedTextFieldState extends State<ValidatedTextField> {
           if (!_formKey.currentState!.validate()) {
             return;
           }
-          // TODO something broken here
           if (widget.onChanged != null) {
-            widget.onChanged!(widget.validator(value) ?? 0.0);
+            widget.onChanged!(widget.validator(value) ?? widget.defaultValue);
           }
         },
         validator: (value) {

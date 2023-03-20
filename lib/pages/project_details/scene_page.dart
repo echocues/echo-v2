@@ -1,4 +1,3 @@
-import 'package:echocues/api/models/event.dart';
 import 'package:echocues/api/models/soundcue.dart';
 import 'package:echocues/pages/project_details/event_editor.dart';
 import 'package:echocues/pages/project_details/playmode_viewport.dart';

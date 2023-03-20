@@ -135,6 +135,7 @@ class _EventTimeEditorState extends State<_EventTimeEditor> {
                   padding: const EdgeInsets.only(right: 8.0),
                   child: ValidatedTextField<int>(
                     value: widget.eventTime.hours,
+                    defaultValue: 0,
                     label: "Hours",
                     validator: (str) => int.tryParse(str),
                     onChanged: (val) => widget.eventTime.hours = val,
@@ -146,6 +147,7 @@ class _EventTimeEditorState extends State<_EventTimeEditor> {
                   padding: const EdgeInsets.only(right: 8.0),
                   child: ValidatedTextField<int>(
                     value: widget.eventTime.minutes,
+                    defaultValue: 0,
                     label: "Minutes",
                     validator: (str) => int.tryParse(str),
                     onChanged: (val) => widget.eventTime.minutes = val,
@@ -155,6 +157,7 @@ class _EventTimeEditorState extends State<_EventTimeEditor> {
               Expanded(
                 child: ValidatedTextField<int>(
                   value: widget.eventTime.seconds,
+                  defaultValue: 0,
                   label: "Seconds",
                   validator: (str) => int.tryParse(str),
                   onChanged: (val) => widget.eventTime.seconds = val,
