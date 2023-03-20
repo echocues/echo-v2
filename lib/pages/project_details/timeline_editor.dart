@@ -24,10 +24,12 @@ class _TimelineEditorState extends State<TimelineEditor> {
 
   final EventTime _runningTime = EventTime();
   Timer? _timeUpdater;
+  late _TimelinePainter _painter;
   
   @override
   Widget build(BuildContext context) {
-    var painter = _TimelinePainter(events: widget.events);
+    _painter = _TimelinePainter(events: widget.events)
+      ..horizontalOffsetSeconds = _runningTime.toSeconds() - 5 <= 0 ? 0 : _runningTime.toSeconds() - 5; // show 5 extra seconds if its not at the begining
     
     if (widget.events == null) {
       return Container(
@@ -42,23 +44,23 @@ class _TimelineEditorState extends State<TimelineEditor> {
           children: [
             GestureDetector(
               onTapDown: (details) {
-                if (painter.overEvent != null) {
-                  widget.onEditEvent(painter.overEvent!);
+                if (_painter.overEvent != null) {
+                  widget.onEditEvent(_painter.overEvent!);
                 } else {
-                  moveCursor(details.localPosition.dx, constraints.maxWidth, painter);
+                  moveCursor(details.localPosition.dx, constraints.maxWidth, _painter);
                 }
               },
               onHorizontalDragUpdate: (details) {
-                moveCursor(details.localPosition.dx, constraints.maxWidth, painter);
+                moveCursor(details.localPosition.dx, constraints.maxWidth, _painter);
               },
               child: CustomPaint(
-                painter: painter,
+                painter: _painter,
                 size: Size(constraints.maxWidth, constraints.maxHeight),
               ),
             ),
             _TimelineCursor(
               key: _cursor,
-              painter: painter,
+              painter: _painter,
             ),
             Align(
               alignment: Alignment.bottomCenter,
@@ -67,7 +69,7 @@ class _TimelineEditorState extends State<TimelineEditor> {
                 children: [
                   IdleButton(
                     onPressed: () {
-                      addEvent(painter);
+                      addEvent(_painter);
                     }, 
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -77,13 +79,27 @@ class _TimelineEditorState extends State<TimelineEditor> {
                       ],
                     ),
                   ),
-  
                   IdleButton(
                     onPressed: () {
                       if (_timeUpdater == null) {
                         setState(() {
                           _timeUpdater = Timer.periodic(const Duration(seconds: 1), (timer) {
-                            _runningTime.addSeconds(1);
+                            var runningSeconds = _runningTime.toSeconds();
+                            print("runningSeconds " + runningSeconds.toString());
+                            print("relativeSeconds" + (runningSeconds - _painter.horizontalOffsetSeconds).toString());
+                            print("canFit" + _painter.fitThisManySeconds.toString());
+                            
+                            // TODO also need to go backwards if needed 
+                            if (runningSeconds % 10 == 0 || (runningSeconds - _painter.horizontalOffsetSeconds) >= (_painter.fitThisManySeconds - 1)) {
+                              // every 10 seconds or when the running time is out of the current viewport
+                              // we want to rebuild so the timeline can move forward
+                              setState(() {
+                                _runningTime.addSeconds(1);
+                              });
+                            } else {
+                              _runningTime.addSeconds(1);
+                            }
+                          
                             _cursor.currentState?.moveToTime(_runningTime);
                           });
                         });
@@ -327,7 +343,7 @@ class _TimelineCursorState extends State<_TimelineCursor> {
     return LayoutBuilder(
       builder: (ctx, constraints) => TweenAnimationBuilder<double>(
         tween: Tween<double>(begin: _previousPosition, end: _mouseX),
-        duration: const Duration(milliseconds: 100),
+        duration: const Duration(milliseconds: 75),
         builder: (_, value, __) => Transform(
           transform: Matrix4.translationValues(value, 0, 0),
           child: const VerticalDivider(

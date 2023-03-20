@@ -6,18 +6,18 @@ import 'package:echocues/utilities/text_helper.dart';
 import 'package:flutter/material.dart';
 
 class EventEditor extends StatefulWidget {
-  final EventModel? event;
-
-  const EventEditor({Key? key, required this.event}) : super(key: key);
+  const EventEditor({Key? key}) : super(key: key);
 
   @override
-  State<EventEditor> createState() => _EventEditorState();
+  State<EventEditor> createState() => EventEditorState();
 }
 
-class _EventEditorState extends State<EventEditor> {
+class EventEditorState extends State<EventEditor> {
+  EventModel? event;
+  
   @override
   Widget build(BuildContext context) {
-    if (widget.event == null) {
+    if (event == null) {
       return Container(
         color: Theme.of(context).colorScheme.background,
         child: Center(
@@ -25,7 +25,7 @@ class _EventEditorState extends State<EventEditor> {
         ),
       );
     }
-
+    
     return Container(
       color: Theme.of(context).colorScheme.background,
       child: Padding(
@@ -37,8 +37,9 @@ class _EventEditorState extends State<EventEditor> {
               padding: const EdgeInsets.only(bottom: 24.0),
               child: TextHelper.title(context, "Event"),
             ),
+            
             _EventTimeEditor(
-              eventTime: widget.event!.time,
+              eventTime: event!.time,
             )
           ],
         ),

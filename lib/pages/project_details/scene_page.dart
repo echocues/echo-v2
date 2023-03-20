@@ -18,7 +18,7 @@ class ScenesPageWidget extends StatefulWidget {
 class _ScenesPageWidgetState extends State<ScenesPageWidget> {
   
   SceneModel? _editingScene;
-  EventModel? _editingEvent;
+  GlobalKey<EventEditorState> eventEditorKey = GlobalKey();
 
   _ScenesPageWidgetState();
 
@@ -43,7 +43,7 @@ class _ScenesPageWidgetState extends State<ScenesPageWidget> {
                   Expanded(
                     flex: 2,
                     child: EventEditor(
-                      event: _editingEvent,
+                      key: eventEditorKey,
                     ),
                   ),
                   const Expanded(
@@ -77,8 +77,8 @@ class _ScenesPageWidgetState extends State<ScenesPageWidget> {
                   child: TimelineEditor(
                     events: _editingScene?.events,
                     onEditEvent: (event) {
-                      setState(() {
-                        _editingEvent = event;
+                      eventEditorKey.currentState?.setState(() {
+                        eventEditorKey.currentState?.event = event;
                       });
                     },
                   ),

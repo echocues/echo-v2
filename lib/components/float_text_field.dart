@@ -20,13 +20,9 @@ class _ValidatedTextFieldState extends State<ValidatedTextField> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   
   @override
-  void initState() {
-    super.initState();
-    _controller.text = widget.value.toStringAsFixed(2);
-  }
-
-  @override
   Widget build(BuildContext context) {
+    _controller.text = widget.value.toStringAsFixed(2);
+    
     return Form(
       key: _formKey,
       child: TextFormField(
