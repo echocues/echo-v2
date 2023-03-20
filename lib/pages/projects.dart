@@ -128,7 +128,7 @@ class _CreateProjectDialogState extends State<_CreateProjectDialog> {
     return AlertDialog(
       title: TextHelper.title(context, "Create Project"),
       content: SizedBox(
-        height: 200,
+        height: 160,
         child: Column(
           children: [
             Expanded(
@@ -149,8 +149,6 @@ class _CreateProjectDialogState extends State<_CreateProjectDialog> {
               child: TextField(
                 controller: _descriptionInput,
                 keyboardType: TextInputType.multiline,
-                minLines: 5,
-                maxLines: null,
                 decoration: const InputDecoration(
                   labelText: "Description",
                   border: OutlineInputBorder(),

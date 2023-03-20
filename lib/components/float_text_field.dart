@@ -36,6 +36,7 @@ class _ValidatedTextFieldState extends State<ValidatedTextField> {
             return;
           }
           if (widget.onChanged != null) {
+            // TODO something broken here
             widget.onChanged!(widget.validator(value) ?? 0.0);
           }
         },

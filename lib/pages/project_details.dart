@@ -117,6 +117,7 @@ class _ProjectDetailsPageWidgetState extends State<ProjectDetailsPageWidget> {
                 SoundCuesPageWidget(soundCuesData: _projectModel!.soundCues),
                 ScenesPageWidget(
                   scenes: _projectModel!.scenes,
+                  cues: _projectModel!.soundCues,
                 ),
                 const PlayModePageWidget(),
               ],

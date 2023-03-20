@@ -62,6 +62,7 @@ class ProjectButton extends StatelessWidget {
                         ),
                         Text(
                           project.description,
+                          overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.notoSans(
                             fontSize: constraints.maxWidth / 14,
                           ),

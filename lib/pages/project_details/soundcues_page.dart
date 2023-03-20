@@ -44,6 +44,7 @@ class _SoundCuesPageWidgetState extends State<SoundCuesPageWidget> {
   void dispose() async {
     super.dispose();
     await _audioPlayer.dispose();
+    print(_soundCues.toString());
     widget.soundCuesData.clear();
     widget.soundCuesData.addAll(_soundCues.map((e) => e.soundCue));
   }

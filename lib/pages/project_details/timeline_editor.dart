@@ -23,7 +23,6 @@ class _TimelineEditorState extends State<TimelineEditor> {
   final GlobalKey<_TimelineCursorState> _cursor = GlobalKey();
 
   final EventTime _runningTime = EventTime();
-  Timer? _timeUpdater;
   late _TimelinePainter _painter;
   
   @override
@@ -81,40 +80,13 @@ class _TimelineEditorState extends State<TimelineEditor> {
                   ),
                   IdleButton(
                     onPressed: () {
-                      if (_timeUpdater == null) {
-                        setState(() {
-                          _timeUpdater = Timer.periodic(const Duration(seconds: 1), (timer) {
-                            var runningSeconds = _runningTime.toSeconds();
-                            print("runningSeconds " + runningSeconds.toString());
-                            print("relativeSeconds" + (runningSeconds - _painter.horizontalOffsetSeconds).toString());
-                            print("canFit" + _painter.fitThisManySeconds.toString());
-                            
-                            // TODO also need to go backwards if needed 
-                            if (runningSeconds % 10 == 0 || (runningSeconds - _painter.horizontalOffsetSeconds) >= (_painter.fitThisManySeconds - 1)) {
-                              // every 10 seconds or when the running time is out of the current viewport
-                              // we want to rebuild so the timeline can move forward
-                              setState(() {
-                                _runningTime.addSeconds(1);
-                              });
-                            } else {
-                              _runningTime.addSeconds(1);
-                            }
-                          
-                            _cursor.currentState?.moveToTime(_runningTime);
-                          });
-                        });
-                      } else {
-                        setState(() {
-                          _timeUpdater!.cancel();
-                          _timeUpdater = null;
-                        });
-                      }
+                      
                     },
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(_timeUpdater == null ? Icons.play_arrow_outlined : Icons.pause_outlined),
-                        TextHelper.normal(ctx, _timeUpdater == null ? "Run Timeline" : "Pause Timeline"),
+                        Icon(Icons.play_arrow_outlined),
+                        TextHelper.normal(ctx, "Run Timeline - WORK IN PROGRESS"),
                       ],
                     ),
                   ),

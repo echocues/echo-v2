@@ -1,4 +1,5 @@
 import 'package:echocues/api/models/event.dart';
+import 'package:echocues/api/models/soundcue.dart';
 import 'package:echocues/pages/project_details/event_editor.dart';
 import 'package:echocues/pages/project_details/playmode_viewport.dart';
 import 'package:echocues/pages/project_details/scene_dropdown.dart';
@@ -8,8 +9,9 @@ import '../../api/models/scene.dart';
 
 class ScenesPageWidget extends StatefulWidget {
   final List<SceneModel> scenes;
+  final List<SoundCue> cues;
 
-  const ScenesPageWidget({Key? key, required this.scenes}) : super(key: key);
+  const ScenesPageWidget({Key? key, required this.scenes, required this.cues}) : super(key: key);
 
   @override
   State<ScenesPageWidget> createState() => _ScenesPageWidgetState();
@@ -44,6 +46,7 @@ class _ScenesPageWidgetState extends State<ScenesPageWidget> {
                     flex: 2,
                     child: EventEditor(
                       key: eventEditorKey,
+                      soundCues: widget.cues,
                     ),
                   ),
                   const Expanded(

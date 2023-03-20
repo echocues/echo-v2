@@ -42,6 +42,8 @@ class _SoundFileSelectorState extends State<SoundFileSelector> {
                 if (data == null) return;
                 var instance = await SharedPreferences.getInstance();
                 var projectId = instance.getString("editingProject");
+                // TODO because this setState does not rebuild SoundCuePage the expansion tile does not
+                // get rebuilt so the title does not change properly 
                 await ServerCaller.uploadAudio(projectId!, file.name, data)
                     .whenComplete(() => setState(() => widget.soundCue.fileName = file.name));
               }
