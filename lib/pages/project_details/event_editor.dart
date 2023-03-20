@@ -186,7 +186,8 @@ class _EventSoundCuesEditorState extends State<_EventSoundCuesEditor> {
         return DropdownButton<String>(
           value: eventCue,
           items: widget.cues.map((soundCue) => DropdownMenuItem(
-            value: soundCue.fileName,
+            // the actual value saved is the identifier, but displays the filename for ease of use
+            value: soundCue.identifier,
             child: TextHelper.normal(context, soundCue.fileName),
           )).toList(),
           onChanged: (val) {

@@ -5,7 +5,7 @@ typedef Validator<T> = T? Function(String);
 class ValidatedTextField<T> extends StatefulWidget {
   
   final T value;
-  final Function(T)? onChanged;
+  final void Function(T)? onChanged;
   final String label;
   final Validator<T> validator;
 
@@ -35,8 +35,8 @@ class _ValidatedTextFieldState extends State<ValidatedTextField> {
           if (!_formKey.currentState!.validate()) {
             return;
           }
+          // TODO something broken here
           if (widget.onChanged != null) {
-            // TODO something broken here
             widget.onChanged!(widget.validator(value) ?? 0.0);
           }
         },
