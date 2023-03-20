@@ -1,8 +1,8 @@
 import 'package:echocues/api/models/event.dart';
 import 'package:echocues/api/models/event_time.dart';
 import 'package:echocues/api/models/soundcue.dart';
-import 'package:echocues/components/float_text_field.dart';
 import 'package:echocues/components/labeled_widget.dart';
+import 'package:echocues/components/validated_text_field.dart';
 import 'package:echocues/utilities/text_helper.dart';
 import 'package:flutter/material.dart';
 
@@ -26,7 +26,7 @@ class EventEditorState extends State<EventEditor> {
       return Container(
         color: Theme.of(context).colorScheme.background,
         child: Center(
-          child: TextHelper.normal(context, "No Event Selected"),
+          child: TextHelper.title(context, "No Event Selected"),
         ),
       );
     }

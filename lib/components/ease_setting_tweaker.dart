@@ -1,5 +1,5 @@
 import 'package:echocues/api/models/ease_settings.dart';
-import 'package:echocues/components/float_text_field.dart';
+import 'package:echocues/components/validated_text_field.dart';
 import 'package:flutter/material.dart';
 
 import 'labeled_widget.dart';

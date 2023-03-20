@@ -27,17 +27,17 @@ class _TimelineEditorState extends State<TimelineEditor> {
   
   @override
   Widget build(BuildContext context) {
-    _painter = _TimelinePainter(events: widget.events)
-      ..horizontalOffsetSeconds = _runningTime.toSeconds() - 5 <= 0 ? 0 : _runningTime.toSeconds() - 5; // show 5 extra seconds if its not at the begining
-    
     if (widget.events == null) {
       return Container(
-        color: Colors.black,
+        color: Theme.of(context).colorScheme.background,
         child: Center(
           child: TextHelper.title(context, "No Scene Selected"),
         ),
       );
     } else {
+      _painter = _TimelinePainter(events: widget.events!)
+        ..horizontalOffsetSeconds = _runningTime.toSeconds() - 5 <= 0 ? 0 : _runningTime.toSeconds() - 5; // show 5 extra seconds if its not at the begining
+
       return LayoutBuilder(
         builder: (ctx, constraints) => Stack(
           children: [
@@ -120,7 +120,7 @@ class _TimelineEditorState extends State<TimelineEditor> {
 }
 
 class _TimelinePainter extends CustomPainter {
-  final List<EventModel>? events;
+  final List<EventModel> events;
 
   late double pixelSpaceIntervalForEachSecond;
   double eventDotRadius = 6;
@@ -137,15 +137,11 @@ class _TimelinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     var pos = size.topLeft(Offset.zero);
+    
     // BACKGROUND
-    final backgroundPaint = Paint()
-      ..color = const Color(0xff424242);
-    if (events == null) {
-      canvas.drawRect(Rect.fromLTWH(pos.dx, pos.dy, size.width, size.height), backgroundPaint);
-      return;
-    }
+    final backgroundPaint = Paint()..color = const Color(0xff424242);
     canvas.drawRect(Rect.fromLTWH(pos.dx, pos.dy, size.width, size.height), backgroundPaint);
-
+    
     // INITIALIZE VARIABLES
     pixelSpaceIntervalForEachSecond = size.width / fitThisManySeconds;
     final horizontalOffset = horizontalOffsetSeconds * pixelSpaceIntervalForEachSecond;
