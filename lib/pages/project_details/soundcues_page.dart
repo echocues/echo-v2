@@ -1,17 +1,12 @@
-import 'dart:typed_data';
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:echocues/api/models/ease_settings.dart';
 import 'package:echocues/api/server_caller.dart';
 import 'package:echocues/components/ease_setting_tweaker.dart';
-import 'package:echocues/components/labeled_widget.dart';
 import 'package:echocues/components/sound_file_select.dart';
 import 'package:echocues/components/volume_tweaker.dart';
 import 'package:echocues/utilities/audio_manager.dart';
 import 'package:echocues/utilities/text_helper.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:path/path.dart' as path;
@@ -58,7 +53,7 @@ class _SoundCuesPageWidgetState extends State<SoundCuesPageWidget> {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
+        child: _soundCues.isEmpty ? Center(child: TextHelper.normal(context, "No available sound cues. Create one with the button on the bottom right")) : SingleChildScrollView(
           child: ExpansionPanelList(
             expansionCallback: (index, expanded) {
               setState(() {
@@ -90,7 +85,7 @@ class _SoundCuesPageWidgetState extends State<SoundCuesPageWidget> {
                         );
                       },
                     ),
-                    title: TextHelper.title(ctx, path.basenameWithoutExtension(e.soundCue.fileName)),
+                    title: TextHelper.largeText(ctx, path.basenameWithoutExtension(e.soundCue.fileName)),
                     trailing: IconButton(
                       onPressed: () {
                         setState(() {

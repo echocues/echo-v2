@@ -23,7 +23,7 @@ class Utils {
         }),
         accentColor: const Color(0xffee6C4C),
         cardColor: const Color(0xff3d5a80),
-        backgroundColor: const Color(0xff293241),
+        backgroundColor: const Color(0xff424242),
         errorColor: Colors.redAccent,
         brightness: Brightness.dark,
       ),
@@ -35,7 +35,19 @@ class Utils {
           ),
           color: Colors.white,
         ),
+        titleLarge: GoogleFonts.poppins(
+          textStyle: const TextStyle(
+            fontSize: 20,
+          ),
+          color: Colors.white,
+        ),
         titleMedium: GoogleFonts.notoSans(
+          textStyle: const TextStyle(
+            fontSize: 14,
+          ),
+          color: Colors.white,
+        ),
+        bodyLarge: GoogleFonts.notoSans(
           textStyle: const TextStyle(
             fontSize: 16,
           ),

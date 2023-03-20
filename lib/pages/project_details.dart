@@ -3,10 +3,9 @@ import 'dart:async';
 import 'package:echocues/api/server_caller.dart';
 import 'package:echocues/pages/project_details/playmode_page.dart';
 import 'package:echocues/pages/project_details/soundcues_page.dart';
-import 'package:echocues/pages/project_details/timelines_page.dart';
+import 'package:echocues/pages/project_details/scene_page.dart';
 import 'package:echocues/utilities/text_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api/models/project.dart';
@@ -82,7 +81,7 @@ class _ProjectDetailsPageWidgetState extends State<ProjectDetailsPageWidget> {
                           padding: EdgeInsets.all(8.0),
                           child: Icon(Icons.surround_sound),
                         ),
-                        TextHelper.title(ctx, "Sound Cues"),
+                        TextHelper.largeText(ctx, "Sound Cues"),
                       ],
                     ),
                   ),
@@ -94,7 +93,7 @@ class _ProjectDetailsPageWidgetState extends State<ProjectDetailsPageWidget> {
                           padding: EdgeInsets.all(8.0),
                           child: Icon(Icons.theaters),
                         ),
-                        TextHelper.title(ctx, "Scenes"),
+                        TextHelper.largeText(ctx, "Scenes"),
                       ],
                     ),
                   ),
@@ -106,7 +105,7 @@ class _ProjectDetailsPageWidgetState extends State<ProjectDetailsPageWidget> {
                           padding: EdgeInsets.all(8.0),
                           child: Icon(Icons.play_arrow),
                         ),
-                        TextHelper.title(ctx, "Play Mode"),
+                        TextHelper.largeText(ctx, "Play Mode"),
                       ],
                     ),
                   ),

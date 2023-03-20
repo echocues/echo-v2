@@ -1,5 +1,6 @@
 import 'package:echocues/api/server_caller.dart';
 import 'package:echocues/components/project_button.dart';
+import 'package:echocues/utilities/text_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -15,24 +16,12 @@ class ProjectPageWidget extends StatefulWidget {
 }
 
 class _ProjectPageWidgetState extends State<ProjectPageWidget> {
-  late TextEditingController _titleInput;
-  late TextEditingController _descriptionInput;
-
   late Future<List<ProjectModel>> _projects;
 
   @override
   void initState() {
     super.initState();
-    _titleInput = TextEditingController();
-    _descriptionInput = TextEditingController();
     _projects = ServerCaller.getProjects("AYJ");
-  }
-
-  @override
-  void dispose() {
-    _titleInput.dispose();
-    _descriptionInput.dispose();
-    super.dispose();
   }
 
   @override
@@ -55,73 +44,17 @@ class _ProjectPageWidgetState extends State<ProjectPageWidget> {
                 showDialog(
                   context: context,
                   builder: (dialogContext) {
-                    return AlertDialog(
-                      title: Text(
-                        "Create Project",
-                        style: GoogleFonts.poppins(),
-                      ),
-                      content: SizedBox(
-                        height: 170,
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8.0),
-                              child: TextField(
-                                controller: _titleInput,
-                                decoration: const InputDecoration(
-                                  labelText: "Title",
-                                  border: OutlineInputBorder(),
-                                ),
-                              ),
-                            ),
-                            TextField(
-                              controller: _descriptionInput,
-                              keyboardType: TextInputType.multiline,
-                              minLines: 5,
-                              maxLines: null,
-                              decoration: const InputDecoration(
-                                labelText: "Description",
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      actions: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(right: 16, bottom: 16),
-                              child: TextButton(
-                                child: Text(
-                                  "Confirm",
-                                  style: GoogleFonts.notoSans(),
-                                ),
-                                onPressed: () async {
-                                  await ServerCaller.createProject("AYJ", _titleInput.text, _descriptionInput.text)
-                                      .whenComplete(() => setState(() {
-                                    _projects = ServerCaller.getProjects("AYJ");
-                                    Navigator.pop(dialogContext);
-                                  }));
-                                },
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 16, bottom: 16),
-                              child: TextButton(
-                                child: Text(
-                                  "Cancel",
-                                  style: GoogleFonts.notoSans(),
-                                ),
-                                onPressed: () {
+                    return _CreateProjectDialog(
+                      onConfirm: (title, description) async {
+                        await ServerCaller.createProject("AYJ", title.text, description.text)
+                            .whenComplete(() => setState(() {
+                                  _projects = ServerCaller.getProjects("AYJ");
                                   Navigator.pop(dialogContext);
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                                }));
+                      },
+                      onCancel: () {
+                        Navigator.pop(dialogContext);
+                      },
                     );
                   },
                 );
@@ -145,7 +78,8 @@ class _ProjectPageWidgetState extends State<ProjectPageWidget> {
                               .map((e) => ProjectButton(
                                     project: e,
                                     onDelete: () => setState(() {
-                                      _projects = ServerCaller.getProjects("AYJ");
+                                      _projects =
+                                          ServerCaller.getProjects("AYJ");
                                     }),
                                   ))
                               .toList()
@@ -158,5 +92,97 @@ class _ProjectPageWidgetState extends State<ProjectPageWidget> {
             },
           ),
         ));
+  }
+}
+
+class _CreateProjectDialog extends StatefulWidget {
+  final Function(TextEditingController, TextEditingController) onConfirm;
+  final VoidCallback? onCancel;
+
+  const _CreateProjectDialog({Key? key, required this.onConfirm, this.onCancel}) : super(key: key);
+
+  @override
+  State<_CreateProjectDialog> createState() => _CreateProjectDialogState();
+}
+
+class _CreateProjectDialogState extends State<_CreateProjectDialog> {
+  late TextEditingController _titleInput;
+  late TextEditingController _descriptionInput;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleInput = TextEditingController();
+    _descriptionInput = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _titleInput.dispose();
+    _descriptionInput.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: TextHelper.title(context, "Create Project"),
+      content: SizedBox(
+        height: 200,
+        child: Column(
+          children: [
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: TextField(
+                  controller: _titleInput,
+                  decoration: const InputDecoration(
+                    labelText: "Title",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: TextField(
+                controller: _descriptionInput,
+                keyboardType: TextInputType.multiline,
+                minLines: 5,
+                maxLines: null,
+                decoration: const InputDecoration(
+                  labelText: "Description",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(right: 16, bottom: 16),
+              child: TextButton(
+                onPressed: () {
+                  widget.onConfirm(_titleInput, _descriptionInput);
+                },
+                child: TextHelper.normal(context, "Confirm"),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 16, bottom: 16),
+              child: TextButton(
+                onPressed: widget.onCancel,
+                child: TextHelper.normal(context, "Cancel"),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }

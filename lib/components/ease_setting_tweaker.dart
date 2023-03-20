@@ -39,12 +39,13 @@ class _EaseSettingsTweakerState extends State<EaseSettingsTweaker> {
             if (widget.settings.enabled)
               SizedBox(
                 width: constraints.maxWidth / 6,
-                child: FloatTextField(
+                child: ValidatedTextField<double>(
                   value: widget.settings.duration,
                   label: "Ease Duration",
                   onChanged: (value) {
                     widget.settings.duration = value;
                   },
+                  validator: (str) => double.tryParse(str),
                 ),
               ),
           ],
