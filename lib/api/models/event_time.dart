@@ -6,7 +6,7 @@ class EventTime {
   });
 
   EventTime.fromJson(dynamic json) {
-    hours = json['hour'];
+    hours = json['hours'];
     minutes = json['minutes'];
     seconds = json['seconds'];
   }
@@ -23,7 +23,7 @@ class EventTime {
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
-    map['hour'] = hours;
+    map['hours'] = hours;
     map['minutes'] = minutes;
     map['seconds'] = seconds;
     return map;
