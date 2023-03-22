@@ -21,6 +21,7 @@ class _ProjectPageWidgetState extends State<ProjectPageWidget> {
   @override
   void initState() {
     super.initState();
+    // TODO this does not get updated when exited and reentered
     _projects = ServerCaller.getProjects("AYJ");
   }
 
@@ -48,9 +49,9 @@ class _ProjectPageWidgetState extends State<ProjectPageWidget> {
                       onConfirm: (title, description) async {
                         await ServerCaller.createProject("AYJ", title.text, description.text)
                             .whenComplete(() => setState(() {
-                                  _projects = ServerCaller.getProjects("AYJ");
-                                  Navigator.pop(dialogContext);
-                                }));
+                              _projects = ServerCaller.getProjects("AYJ");
+                              Navigator.pop(dialogContext);
+                            }));
                       },
                       onCancel: () {
                         Navigator.pop(dialogContext);
@@ -73,17 +74,14 @@ class _ProjectPageWidgetState extends State<ProjectPageWidget> {
                     return GridView.count(
                       crossAxisCount: (constraints.maxWidth / 200).round(),
                       childAspectRatio: 1 / 1.5,
-                      children: snapshot.data != null
-                          ? snapshot.data!
-                              .map((e) => _ProjectButton(
-                                    project: e,
-                                    onDelete: () => setState(() {
-                                      _projects =
-                                          ServerCaller.getProjects("AYJ");
-                                    }),
-                                  ))
-                              .toList()
-                          : [],
+                      children: snapshot.data == null 
+                          ? [] 
+                          : snapshot.data!.map((e) => _ProjectButton(
+                            project: e,
+                            onDelete: () => setState(() {
+                              _projects = ServerCaller.getProjects("AYJ");
+                            }),
+                          )).toList(),
                     );
                   }
                   return const CircularProgressIndicator();

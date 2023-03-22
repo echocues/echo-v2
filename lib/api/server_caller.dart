@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 import 'models/project.dart';
 
 class ServerCaller {
-  static const String _serverUrl = "http://127.0.0.1:8000";
+  static const String _serverUrl = "https://echoapi.w1nterish3re.repl.co";
   
   static Future<List<ProjectModel>> getProjects(String username) async {
     final response = await http.get(

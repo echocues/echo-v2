@@ -35,7 +35,7 @@ class _TimelineEditorState extends State<TimelineEditor> {
       );
     } else {
       _painter = _TimelinePainter(events: widget.events!)
-        ..horizontalOffsetSeconds = _runningTime.toSeconds() - 5 <= 0 ? 0 : _runningTime.toSeconds() - 5; // show 5 extra seconds if its not at the begining
+        ..horizontalOffsetSeconds = _runningTime.toSeconds();
 
       return LayoutBuilder(
         builder: (ctx, constraints) => Stack(
@@ -79,7 +79,7 @@ class _TimelineEditorState extends State<TimelineEditor> {
                   ),
                   IdleButton(
                     onPressed: () {
-                      
+                      // TODO implement this
                     },
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -92,6 +92,60 @@ class _TimelineEditorState extends State<TimelineEditor> {
                 ],
               ),
             ),
+            Align(
+              alignment: Alignment.bottomLeft,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _runningTime.seconds -= 30;
+                        _runningTime.format();
+                      });
+                    },
+                    child: const Icon(Icons.keyboard_double_arrow_left),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _runningTime.seconds -= 10;
+                        _runningTime.format();
+                      });
+                    },
+                    child: const Icon(Icons.keyboard_arrow_left),
+                  ),
+                ],
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _runningTime.seconds += 10;
+                        _runningTime.format();
+                      });
+                    },
+                    child: const Icon(Icons.keyboard_arrow_right),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _runningTime.seconds += 30;
+                        _runningTime.format();
+                      });
+                    },
+                    child: const Icon(Icons.keyboard_double_arrow_right),
+                  ),
+                ],
+              ),
+            )
           ],
         ),
     );
@@ -108,10 +162,14 @@ class _TimelineEditorState extends State<TimelineEditor> {
     _cursor.currentState?.setState(() {
       var x = clampDouble(mouseX, 0, width);
       var timeInSeconds = (x / painter.pixelSpaceIntervalForEachSecond).round(); 
-      _runningTime.minutes = 0;
-      _runningTime.hours = 0;
-      _runningTime.seconds = timeInSeconds + painter.horizontalOffsetSeconds;
-      _runningTime.format();
+
+      // TODO cursor doesnt actually move the time rn its just where to place the events. 
+      // TODO this should be dealt with once Run Timeline is implemented
+      // _runningTime.minutes = 0;
+      // _runningTime.hours = 0;
+      // _runningTime.seconds = timeInSeconds + painter.horizontalOffsetSeconds;
+      // _runningTime.format();
+      
       x = timeInSeconds * painter.pixelSpaceIntervalForEachSecond;
       _cursor.currentState?.setMouseX(x);
     });
@@ -186,8 +244,7 @@ class _TimelinePainter extends CustomPainter {
 
     // DRAW ROWS
     // do not draw on top and bottom. only in the middle
-    for (double i = pixelSpaceIntervalForEachRow; i < size.height;
-    i += pixelSpaceIntervalForEachRow) {
+    for (double i = pixelSpaceIntervalForEachRow; i < size.height; i += pixelSpaceIntervalForEachRow) {
       canvas.drawLine(
         Offset(0, i + verticalOffset),
         Offset(size.width, i + verticalOffset),

@@ -44,6 +44,9 @@ class _SoundCuesPageWidgetState extends State<SoundCuesPageWidget> {
                 child: SoundCueButton(
                   soundCue: soundCue,
                   soundCues: widget.soundCuesData,
+                  onDelete: (func) {
+                    setState(() => func());
+                  },
                 ),
               );
             }).toList(),
@@ -71,8 +74,9 @@ class _SoundCuesPageWidgetState extends State<SoundCuesPageWidget> {
 class SoundCueButton extends StatefulWidget {
   final SoundCue soundCue;
   final List<SoundCue> soundCues;
+  final Function(VoidCallback) onDelete;
   
-  const SoundCueButton({Key? key, required this.soundCue, required this.soundCues}) : super(key: key);
+  const SoundCueButton({Key? key, required this.soundCue, required this.soundCues, required this.onDelete}) : super(key: key);
 
   @override
   State<SoundCueButton> createState() => _SoundCueButtonState();
@@ -86,7 +90,7 @@ class _SoundCueButtonState extends State<SoundCueButton> {
   void initState() {
     super.initState();
     _audioPlayer = AudioManager(
-      audioPlayer: AudioPlayer(playerId: "Preview Player"),
+      audioPlayer: AudioPlayer(playerId: const Uuid().v4()),
     );
   }
 
@@ -134,9 +138,7 @@ class _SoundCueButtonState extends State<SoundCueButton> {
         title: TextHelper.largeText(context, path.basenameWithoutExtension(widget.soundCue.fileName)),
         trailing: IconButton(
           onPressed: () {
-            setState(() {
-              widget.soundCues.removeWhere((element) => element == widget.soundCue);
-            });
+            widget.onDelete(() => widget.soundCues.removeWhere((element) => element.identifier == widget.soundCue.identifier));
           },
           icon: const Icon(Icons.delete),
         ),

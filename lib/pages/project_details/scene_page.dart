@@ -20,6 +20,7 @@ class _ScenesPageWidgetState extends State<ScenesPageWidget> {
   
   SceneModel? _editingScene;
   GlobalKey<EventEditorState> eventEditorKey = GlobalKey();
+  GlobalKey<State<TimelineEditor>> timelineEditorKey = GlobalKey();
 
   _ScenesPageWidgetState();
 
@@ -46,15 +47,17 @@ class _ScenesPageWidgetState extends State<ScenesPageWidget> {
                     child: EventEditor(
                       key: eventEditorKey,
                       soundCues: widget.cues,
+                      events: _editingScene == null ? [] : _editingScene!.events,
+                      onShouldRebuildTimeline: () => timelineEditorKey.currentState?.setState(() {}),
                     ),
                   ),
-                  const Expanded(
-                    flex: 3,
-                    child: Padding(
-                      padding: EdgeInsets.only(left: 16.0),
-                      child: PlaymodeViewport(),
-                    ),
-                  ),
+                  // const Expanded(
+                  //   flex: 3,
+                  //   child: Padding(
+                  //     padding: EdgeInsets.only(left: 16.0),
+                  //     child: PlaymodeViewport(),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
@@ -77,6 +80,7 @@ class _ScenesPageWidgetState extends State<ScenesPageWidget> {
                 ),
                 Expanded(
                   child: TimelineEditor(
+                    key: timelineEditorKey,
                     events: _editingScene?.events,
                     onEditEvent: (event) {
                       eventEditorKey.currentState?.setState(() {

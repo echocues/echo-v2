@@ -35,13 +35,18 @@ class EventTime {
   }
   
   void format() {
-    var secondsMul = (seconds / 60).floor();
-    minutes += secondsMul;
-    seconds = seconds % 60;
+    int durationInSeconds = toSeconds();
     
-    var minutesMul = (minutes / 60).floor();
-    hours += minutesMul;
-    minutes = minutesMul % 60;
+    if (durationInSeconds < 0) {
+      hours = 0;
+      minutes = 0;
+      seconds = 0;
+      return;
+    }
+    
+    hours = durationInSeconds ~/ 3600;
+    minutes = (durationInSeconds % 3600) ~/ 60;
+    seconds = durationInSeconds % 60;
   }
   
   int toSeconds() {

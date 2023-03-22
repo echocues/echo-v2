@@ -1,15 +1,16 @@
 import 'package:echocues/api/models/event.dart';
 import 'package:echocues/api/models/event_time.dart';
 import 'package:echocues/api/models/soundcue.dart';
-import 'package:echocues/components/labeled_widget.dart';
 import 'package:echocues/components/validated_text_field.dart';
 import 'package:echocues/utilities/text_helper.dart';
 import 'package:flutter/material.dart';
 
 class EventEditor extends StatefulWidget {
   final List<SoundCue> soundCues;
+  final List<EventModel> events;
+  final VoidCallback onShouldRebuildTimeline;
   
-  const EventEditor({Key? key, required this.soundCues}) : super(key: key);
+  const EventEditor({Key? key, required this.soundCues, required this.onShouldRebuildTimeline, required this.events}) : super(key: key);
 
   @override
   State<EventEditor> createState() => EventEditorState();
@@ -43,8 +44,12 @@ class EventEditorState extends State<EventEditor> {
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 12.0),
-              child: _EventTimeEditor(
-                eventTime: event!.time,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 14.0),
+                child: _EventTimeEditor(
+                  eventTime: event!.time,
+                  onShouldRebuildTimeline: widget.onShouldRebuildTimeline,
+                ),
               ),
             ),
             ExpansionPanelList(
@@ -64,10 +69,10 @@ class EventEditorState extends State<EventEditor> {
                     trailing: IconButton(
                       onPressed: () { 
                         setState(() {
-                          event!.cues.add("");
+                          event!.cues.add(widget.soundCues.first.identifier);
                         });
                       },
-                      icon: const Icon(Icons.add_circle_rounded),
+                      icon: const Icon(Icons.add),
                     ),
                   ),
                   body: _EventSoundCuesEditor(
@@ -79,11 +84,15 @@ class EventEditorState extends State<EventEditor> {
                 ExpansionPanel(
                   headerBuilder: (ctx, expanded) => ListTile(
                     title: TextHelper.largeText(ctx, "Notes"),
+                    trailing: IconButton(
+                      onPressed: () {
+                        print("Add note");
+                      },
+                      icon: const Icon(Icons.add),
+                    ),
                   ),
                   body: Column(
-                    children: [
-                      
-                    ],
+                    children: [],
                   ),
                   isExpanded: notesExpanded,
                 ),
@@ -93,7 +102,13 @@ class EventEditorState extends State<EventEditor> {
               padding: const EdgeInsets.only(top: 24.0),
               child: Center(
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    widget.events.remove(event!);
+                    widget.onShouldRebuildTimeline();
+                    setState(() {
+                      event = null;
+                    });
+                  },
                   child: TextHelper.normal(context, "Delete Event"),
                 ),
               ),
@@ -107,8 +122,9 @@ class EventEditorState extends State<EventEditor> {
 
 class _EventTimeEditor extends StatefulWidget {
   final EventTime eventTime;
-
-  const _EventTimeEditor({Key? key, required this.eventTime}) : super(key: key);
+  final VoidCallback onShouldRebuildTimeline;
+  
+  const _EventTimeEditor({Key? key, required this.eventTime, required this.onShouldRebuildTimeline}) : super(key: key);
 
   @override
   State<_EventTimeEditor> createState() => _EventTimeEditorState();
@@ -122,51 +138,62 @@ class _EventTimeEditorState extends State<_EventTimeEditor> {
 
   @override
   Widget build(BuildContext context) {
-    return LabeledWidget(
-      label: "Event Time",
-      child: Padding(
-        padding: const EdgeInsets.only(left: 16.0),
-        child: SizedBox(
-          width: 220,
-          child: Row(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: ValidatedTextField<int>(
-                    value: widget.eventTime.hours,
-                    defaultValue: 0,
-                    label: "Hours",
-                    validator: (str) => int.tryParse(str),
-                    onChanged: (val) => widget.eventTime.hours = val,
+    return Row(
+      children: [
+        TextHelper.largeText(context, "Event Time"),
+        Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: SizedBox(
+            width: 220,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: ValidatedTextField<int>(
+                      value: widget.eventTime.hours,
+                      defaultValue: 0,
+                      label: "Hours",
+                      validator: (str) => int.tryParse(str),
+                      onChanged: (val) {
+                        widget.eventTime.hours = val;
+                        widget.onShouldRebuildTimeline();
+                      },
+                    ),
                   ),
                 ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: ValidatedTextField<int>(
-                    value: widget.eventTime.minutes,
-                    defaultValue: 0,
-                    label: "Minutes",
-                    validator: (str) => int.tryParse(str),
-                    onChanged: (val) => widget.eventTime.minutes = val,
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: ValidatedTextField<int>(
+                      value: widget.eventTime.minutes,
+                      defaultValue: 0,
+                      label: "Minutes",
+                      validator: (str) => int.tryParse(str),
+                        onChanged: (val) {
+                          widget.eventTime.minutes = val;
+                          widget.onShouldRebuildTimeline();
+                        }
+                    ),
                   ),
                 ),
-              ),
-              Expanded(
-                child: ValidatedTextField<int>(
-                  value: widget.eventTime.seconds,
-                  defaultValue: 0,
-                  label: "Seconds",
-                  validator: (str) => int.tryParse(str),
-                  onChanged: (val) => widget.eventTime.seconds = val,
+                Expanded(
+                  child: ValidatedTextField<int>(
+                    value: widget.eventTime.seconds,
+                    defaultValue: 0,
+                    label: "Seconds",
+                    validator: (str) => int.tryParse(str),
+                      onChanged: (val) {
+                        widget.eventTime.seconds = val;
+                        widget.onShouldRebuildTimeline();
+                      }
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 }
@@ -182,17 +209,20 @@ class _EventSoundCuesEditor extends StatefulWidget {
 }
 
 class _EventSoundCuesEditorState extends State<_EventSoundCuesEditor> {
+  
   @override
   Widget build(BuildContext context) {
+    var allSoundCuesInProject = widget.cues.map((soundCue) => DropdownMenuItem<String>(
+      // the actual value saved is the identifier, but displays the filename for ease of use
+      value: soundCue.identifier,
+      child: TextHelper.normal(context, soundCue.fileName),
+    )).toList();
+    
     return Column(
       children: widget.eventCues.map((eventCue) {
         return DropdownButton<String>(
           value: eventCue,
-          items: widget.cues.map((soundCue) => DropdownMenuItem(
-            // the actual value saved is the identifier, but displays the filename for ease of use
-            value: soundCue.identifier,
-            child: TextHelper.normal(context, soundCue.fileName),
-          )).toList(),
+          items: allSoundCuesInProject,
           onChanged: (val) {
             setState(() {
               widget.eventCues[widget.eventCues.indexOf(eventCue)] = val!;
