@@ -84,7 +84,7 @@ class _ProjectPageWidgetState extends State<ProjectPageWidget> {
                           )).toList(),
                     );
                   }
-                  return const CircularProgressIndicator();
+                  return const Center(child: CircularProgressIndicator());
                 },
               );
             },

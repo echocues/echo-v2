@@ -4,6 +4,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:echocues/api/models/ease_settings.dart';
 import 'package:echocues/api/server_caller.dart';
 import 'package:echocues/components/ease_setting_tweaker.dart';
+import 'package:echocues/components/playback_rate_tweaker.dart';
 import 'package:echocues/components/volume_tweaker.dart';
 import 'package:echocues/utilities/audio_manager.dart';
 import 'package:echocues/utilities/text_helper.dart';
@@ -62,6 +63,7 @@ class _SoundCuesPageWidgetState extends State<SoundCuesPageWidget> {
               easeIn: EaseSettings(enabled: false, duration: 1),
               easeOut: EaseSettings(enabled: false, duration: 1),
               volume: 1.0,
+              speed: 1.0
             ));
           });
         },
@@ -128,6 +130,9 @@ class _SoundCueButtonState extends State<SoundCueButton> {
             await _audioPlayer.start(
               ServerCaller.audioSource(projectId!, widget.soundCue.fileName),
               widget.soundCue,
+              onComplete: () {
+                setState(() => playing = false);
+              }
             );
             
             setState(() {
@@ -183,6 +188,7 @@ class _SoundCueButtonState extends State<SoundCueButton> {
           label: "Ease Out",
         ),
         VolumeTweaker(soundCue: widget.soundCue,),
+        PlaybackRateTweaker(soundCue: widget.soundCue,)
       ],
     );
   }

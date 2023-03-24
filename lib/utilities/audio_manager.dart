@@ -17,6 +17,7 @@ class AudioManager {
   double? prematureStart;
   Timer? fadeIn;
   Timer? fadeOut;
+  StreamSubscription<void>? onCompleteCallback;
 
   Future<void> dispose() async {
     await audioPlayer.dispose();
@@ -32,7 +33,8 @@ class AudioManager {
     }
   }
   
-  Future<void> start(Source source, SoundCue soundCue, {Duration? position}) async {
+  Future<void> start(Source source, SoundCue soundCue, {Duration? position, Function()? onComplete}) async {
+    await audioPlayer.setPlaybackRate(soundCue.speed);
     await audioPlayer.play(
       source,
       volume: 0,
@@ -58,6 +60,14 @@ class AudioManager {
     }
     
     if (!soundCue.easeOut.enabled) {
+      if (onComplete != null) {
+        onCompleteCallback = audioPlayer.onPlayerComplete.listen((_)
+        {
+          onComplete!();
+          onCompleteCallback!.cancel();
+          onCompleteCallback = null;
+        });
+      }
       return;
     }
 
@@ -95,29 +105,33 @@ class AudioManager {
       if (mappedValue <= 0) {
         await audioPlayer.stop();
         fadeOut!.cancel();
-        cleanup();
+        cleanup(onComplete);
       }
     });
   }
   
-  Future<void> stop() async {
+  Future<void> stop({Function()? onComplete}) async {
     if (fadeOut == null) {
       audioPlayer.stop();
-      cleanup();
+      cleanup(onComplete);
       return;
     }
     
     endPremature = true;
   }
   
-  void cleanup() {
+  void cleanup(Function()? onComplete) {
     endPremature = false;
     prematureStart = null;
     fadeIn = null;
     fadeOut = null;
+
+    if (onComplete != null) {
+      onComplete!();
+    }
   }
   
   double eval(double t, double volume) {
-    return -volume * pow(t - 1, 2) + volume;
+    return volume * pow(t , 2);
   }
 }
