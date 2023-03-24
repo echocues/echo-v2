@@ -42,7 +42,6 @@ dependencies:
   shared_preferences: ^2.0.18
   uuid: ^3.0.7
   path: ^1.8.2
-  floating_draggable_widget: ^2.1.2
 
 dev_dependencies:
   flutter_test:

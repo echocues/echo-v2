@@ -1,11 +1,9 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:echocues/api/models/ease_settings.dart';
 import 'package:echocues/api/models/scene.dart';
 import 'package:echocues/api/models/soundcue.dart';
 import 'package:echocues/api/server_caller.dart';
 import 'package:echocues/utilities/audio_manager.dart';
 import 'package:echocues/utilities/text_helper.dart';
-import 'package:floating_draggable_widget/floating_draggable_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -23,29 +21,7 @@ class PlaymodeViewport extends StatelessWidget {
       );
     }
     
-    return LayoutBuilder(builder: (context, constraint) {
-      return FloatingDraggableWidget(
-        floatingWidgetWidth: constraint.maxWidth / 4,
-        floatingWidgetHeight: constraint.maxHeight / 4,
-        floatingWidget: Container(
-          color: Theme.of(context).colorScheme.background,
-          child: Column(
-            children: [
-              TextHelper.title(context, "Event"),
-              _PlayCueButton(soundCue: SoundCue(
-                identifier: "",
-                fileName: "",
-                easeIn: EaseSettings(enabled: false, duration: 0.0),
-                easeOut: EaseSettings(enabled: false, duration: 0.0),
-                volume: 1,
-                speed: 1,
-              ))
-            ],
-          ),
-        ),
-        mainScreenWidget: Container(),
-      );
-    });
+    return Container();
   }
 }
 

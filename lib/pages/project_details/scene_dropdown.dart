@@ -1,13 +1,19 @@
 import 'package:echocues/api/models/scene.dart';
+import 'package:echocues/components/validated_text_field.dart';
 import 'package:echocues/utilities/text_helper.dart';
 import 'package:flutter/material.dart';
 
 class SceneDropdown extends StatefulWidget {
   final List<SceneModel> scenes;
-  final Function(SceneModel) sceneChanged;
+  final Function(SceneModel?) sceneChanged;
   final SceneModel? initialEditingModel;
-  
-  const SceneDropdown({Key? key, required this.scenes, required this.sceneChanged, this.initialEditingModel}) : super(key: key);
+
+  const SceneDropdown(
+      {Key? key,
+      required this.scenes,
+      required this.sceneChanged,
+      this.initialEditingModel})
+      : super(key: key);
 
   @override
   State<SceneDropdown> createState() => _SceneDropdownState();
@@ -15,7 +21,6 @@ class SceneDropdown extends StatefulWidget {
 
 class _SceneDropdownState extends State<SceneDropdown> {
   SceneModel? editingModel;
-
 
   @override
   void initState() {
@@ -39,7 +44,8 @@ class _SceneDropdownState extends State<SceneDropdown> {
             ],
             onChanged: (val) {
               setState(() {
-                _setEditingScene(widget.scenes.firstWhere((element) => element.name == val));
+                _setEditingScene(
+                    widget.scenes.firstWhere((element) => element.name == val));
               });
             },
             value: editingModel?.name,
@@ -55,7 +61,7 @@ class _SceneDropdownState extends State<SceneDropdown> {
                 return _CreateSceneDialog(
                   onConfirm: (name) {
                     setState(() {
-                      var scene = SceneModel(name: name.text, events: []);
+                      var scene = SceneModel(name: name, events: []);
                       widget.scenes.add(scene);
                       _setEditingScene(scene);
                     });
@@ -69,40 +75,43 @@ class _SceneDropdownState extends State<SceneDropdown> {
             );
           },
           child: TextHelper.normal(context, "Create Scene"),
+        ),
+        TextButton(
+          onPressed: () {
+            if (editingModel == null) return;
+            widget.scenes.remove(editingModel);
+            _setEditingScene(widget.scenes.isEmpty ? null : widget.scenes.first);
+          },
+          child: TextHelper.normal(context, "Delete Scene"),
         )
       ],
     );
   }
-  
-  void _setEditingScene(SceneModel sceneModel) {
+
+  void _setEditingScene(SceneModel? sceneModel) {
     editingModel = sceneModel;
-    widget.sceneChanged(editingModel!);
+    widget.sceneChanged(editingModel);
   }
 }
 
 class _CreateSceneDialog extends StatefulWidget {
-  final Function(TextEditingController) onConfirm;
+  final Function(String) onConfirm;
   final VoidCallback? onCancel;
 
-  const _CreateSceneDialog({Key? key, required this.onConfirm, this.onCancel}) : super(key: key);
+  const _CreateSceneDialog({Key? key, required this.onConfirm, this.onCancel})
+      : super(key: key);
 
   @override
   State<_CreateSceneDialog> createState() => _CreateSceneDialogState();
 }
 
 class _CreateSceneDialogState extends State<_CreateSceneDialog> {
-  late TextEditingController _name;
+  late String value;
 
   @override
   void initState() {
     super.initState();
-    _name = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _name.dispose();
-    super.dispose();
+    value = "New Scene";
   }
 
   @override
@@ -111,13 +120,12 @@ class _CreateSceneDialogState extends State<_CreateSceneDialog> {
       title: TextHelper.title(context, "Create Scene"),
       content: Padding(
         padding: const EdgeInsets.only(bottom: 8.0),
-        child: TextField(
-          controller: _name,
-          decoration: const InputDecoration(
-            labelText: "Title",
-            border: OutlineInputBorder(),
-          ),
-        ),
+        child: ValidatedTextField<String>(
+            defaultValue: "New Scene",
+            value: value,
+            validator: (str) => str.isEmpty ? "New Scene" : str,
+            onChanged: (str) => value = str,
+            label: "Title"),
       ),
       actions: [
         Row(
@@ -127,7 +135,7 @@ class _CreateSceneDialogState extends State<_CreateSceneDialog> {
               padding: const EdgeInsets.only(right: 16, bottom: 16),
               child: TextButton(
                 onPressed: () {
-                  widget.onConfirm(_name);
+                  widget.onConfirm(value);
                 },
                 child: TextHelper.normal(context, "Confirm"),
               ),

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:ui';
 
@@ -23,6 +24,9 @@ class _TimelineEditorState extends State<TimelineEditor> {
 
   final EventTime _runningTime = EventTime();
   late _TimelinePainter _painter;
+  Timer? _timeRunner;
+  Stopwatch? _internalTimer;
+  int? secondOffsetRequest;
   
   @override
   Widget build(BuildContext context) {
@@ -79,13 +83,33 @@ class _TimelineEditorState extends State<TimelineEditor> {
                   ),
                   IdleButton(
                     onPressed: () {
-                      // TODO implement this
+                      if (_timeRunner != null) {
+                        setState(() {
+                          _timeRunner!.cancel();
+                          _timeRunner = null;
+                          _internalTimer?.stop();
+                        });
+                        return;
+                      }
+                      
+                      _timeRunner = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+                        _internalTimer ??= Stopwatch();
+                        
+                        if (!_internalTimer!.isRunning) {
+                            _internalTimer!.start();
+                        }
+                        
+                        setState(() {
+                          _runningTime.seconds = _internalTimer!.elapsed.inSeconds;
+                          _runningTime.format();
+                        });
+                      });
                     },
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.play_arrow_outlined),
-                        TextHelper.normal(ctx, "Run Timeline - WORK IN PROGRESS"),
+                        Icon(_timeRunner == null ? Icons.play_arrow_outlined : Icons.pause_outlined),
+                        TextHelper.normal(ctx, "Run Timeline"),
                       ],
                     ),
                   ),
@@ -145,7 +169,10 @@ class _TimelineEditorState extends State<TimelineEditor> {
                   ),
                 ],
               ),
-            )
+            ),
+            // Center(
+            //   child: TextHelper.title(context, _runningTime.toString()),
+            // ),
           ],
         ),
     );
@@ -154,22 +181,18 @@ class _TimelineEditorState extends State<TimelineEditor> {
   
   void addEvent(_TimelinePainter painter) {
     setState(() {
-      widget.events?.add(EventModel(time: EventTime.fromSeconds(_cursor.currentState!.getAtSecond()), cues: [], notes: []));
+      var event = EventModel(time: EventTime.fromSeconds(_cursor.currentState!.getAtSecond()), cues: [], notes: []);
+      widget.events?.add(event);
+      
+      // edit the new event
+      widget.onEditEvent(event);
     });
   }
   
   void moveCursor(double mouseX, double width, _TimelinePainter painter) {
     _cursor.currentState?.setState(() {
       var x = clampDouble(mouseX, 0, width);
-      var timeInSeconds = (x / painter.pixelSpaceIntervalForEachSecond).round(); 
-
-      // TODO cursor doesnt actually move the time rn its just where to place the events. 
-      // TODO this should be dealt with once Run Timeline is implemented
-      // _runningTime.minutes = 0;
-      // _runningTime.hours = 0;
-      // _runningTime.seconds = timeInSeconds + painter.horizontalOffsetSeconds;
-      // _runningTime.format();
-      
+      var timeInSeconds = (x / painter.pixelSpaceIntervalForEachSecond).round();
       x = timeInSeconds * painter.pixelSpaceIntervalForEachSecond;
       _cursor.currentState?.setMouseX(x);
     });
@@ -190,7 +213,7 @@ class _TimelinePainter extends CustomPainter {
   EventModel? overEvent;
 
   _TimelinePainter({required this.events});
-
+  
   @override
   void paint(Canvas canvas, Size size) {
     var pos = size.topLeft(Offset.zero);
@@ -212,9 +235,8 @@ class _TimelinePainter extends CustomPainter {
       ..strokeWidth = 1.0;
 
     // DRAW INTERVALS
-    var count = -1;
     for (double i = 0; i < size.width; i += pixelSpaceIntervalForEachSecond + 0.00000000001) { // add a tiny number to the end to prevent the last one from drawing
-      count++; var shouldBeThick = count % (5 + horizontalOffsetSeconds % 5) == 0;
+      var shouldBeThick = ((i / pixelSpaceIntervalForEachSecond).round() + horizontalOffsetSeconds) % 5 == 0;
       canvas.drawLine(Offset(i, 0), Offset(i, size.height), shouldBeThick ? linePaint : faintLinePaint);
 
       // DRAW TIME LABEL

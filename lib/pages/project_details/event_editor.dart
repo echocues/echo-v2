@@ -86,13 +86,15 @@ class EventEditorState extends State<EventEditor> {
                     title: TextHelper.largeText(ctx, "Notes"),
                     trailing: IconButton(
                       onPressed: () {
-                        print("Add note");
+                        setState(() {
+                          event!.notes.add("New Note");
+                        });
                       },
                       icon: const Icon(Icons.add),
                     ),
                   ),
-                  body: Column(
-                    children: [],
+                  body: _EventNotesEditor(
+                    notes: event!.notes,
                   ),
                   isExpanded: notesExpanded,
                 ),
@@ -231,6 +233,73 @@ class _EventSoundCuesEditorState extends State<_EventSoundCuesEditor> {
           hint: TextHelper.normal(context, "Select Sound Cue"),
         );
       }).toList(),
+    );
+  }
+}
+
+class _EventNotesEditor extends StatefulWidget {
+  final List<String> notes;
+  
+  const _EventNotesEditor({Key? key, required this.notes}) : super(key: key);
+
+  @override
+  State<_EventNotesEditor> createState() => _EventNotesEditorState();
+}
+
+class _EventNotesEditorState extends State<_EventNotesEditor> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: widget.notes.asMap().entries.map((entry) {
+        return Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: ListTile(
+            title: _EventNoteTextField(
+              initialValue: entry.value,
+              onChanged: (str) {
+                // entry.key is the index of the value
+                widget.notes[entry.key] = str;
+              },
+            ),
+            trailing: IconButton(
+              onPressed: () { 
+                setState(() {
+                  widget.notes.remove(entry.value);
+                });
+              },
+              icon: const Icon(Icons.delete),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class _EventNoteTextField extends StatefulWidget {
+  final String initialValue;
+  final Function(String) onChanged;
+  
+  const _EventNoteTextField({Key? key, required this.initialValue, required this.onChanged}) : super(key: key);
+
+  @override
+  State<_EventNoteTextField> createState() => _EventNoteTextFieldState();
+}
+
+class _EventNoteTextFieldState extends State<_EventNoteTextField> {
+  late TextEditingController _controller;
+  
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue);
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: _controller,
+      onChanged: widget.onChanged,
     );
   }
 }
