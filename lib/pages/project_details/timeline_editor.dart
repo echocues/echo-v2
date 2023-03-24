@@ -204,7 +204,6 @@ class _TimelinePainter extends CustomPainter {
 
   late double pixelSpaceIntervalForEachSecond;
   double eventDotRadius = 6;
-  int maxFitThisManyRows = 5;
   int fitThisManySeconds = 50;
   int horizontalOffsetSeconds = 0;
   int verticalOffsetRows = 0;
@@ -317,9 +316,6 @@ class _TimelinePainter extends CustomPainter {
 
       // if this does not fit in the current view
       final newValue = times[eventTime]!;
-      if (newValue > maxFitThisManyRows) {
-        continue;
-      }
 
       // finally add it to the result
       result[_PrecomputedEventPosition(eventTime * pixelSpaceIntervalForEachSecond, newValue - 1)] = event;
@@ -333,8 +329,7 @@ class _TimelinePainter extends CustomPainter {
     return oldDelegate.events != events
         || oldDelegate.horizontalOffsetSeconds != horizontalOffsetSeconds
         || oldDelegate.verticalOffsetRows != verticalOffsetRows
-        || oldDelegate.fitThisManySeconds != fitThisManySeconds
-        || oldDelegate.maxFitThisManyRows != maxFitThisManyRows;
+        || oldDelegate.fitThisManySeconds != fitThisManySeconds;
   }
   
   @override
