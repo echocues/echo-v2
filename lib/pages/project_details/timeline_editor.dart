@@ -101,6 +101,8 @@ class _TimelineEditorState extends State<TimelineEditor> {
                         
                         setState(() {
                           _runningTime.seconds = _internalTimer!.elapsed.inSeconds;
+                          _runningTime.minutes = 0;
+                          _runningTime.hours = 0;
                           _runningTime.format();
                         });
                       });
@@ -113,6 +115,28 @@ class _TimelineEditorState extends State<TimelineEditor> {
                       ],
                     ),
                   ),
+                  IdleButton(
+                    onPressed: () {
+                      setState(() {
+                        _internalTimer?.stop();
+                        _internalTimer = null;
+                        
+                        _timeRunner?.cancel();
+                        _timeRunner = null;
+                        
+                        _runningTime.seconds = 0;
+                        _runningTime.minutes = 0;
+                        _runningTime.hours = 0;
+                      });
+                    }, 
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.refresh),
+                        TextHelper.normal(ctx, "Reset"),
+                      ],
+                    ),
+                  )
                 ],
               ),
             ),
@@ -170,9 +194,6 @@ class _TimelineEditorState extends State<TimelineEditor> {
                 ],
               ),
             ),
-            // Center(
-            //   child: TextHelper.title(context, _runningTime.toString()),
-            // ),
           ],
         ),
     );
@@ -203,7 +224,7 @@ class _TimelinePainter extends CustomPainter {
   final List<EventModel> events;
 
   late double pixelSpaceIntervalForEachSecond;
-  double eventDotRadius = 6;
+  double eventDotRadius = 8;
   int fitThisManySeconds = 50;
   int horizontalOffsetSeconds = 0;
   int verticalOffsetRows = 0;
