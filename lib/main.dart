@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Echo',
       theme: Utils.defaultDarkTheme(),
       initialRoute: ProjectPageWidget.route,
       routes: {
