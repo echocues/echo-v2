@@ -21,7 +21,7 @@ class Utils {
           800: Color.fromRGBO(224, 251, 252, .9),
           900: Color.fromRGBO(224, 251, 252, 1),
         }),
-        accentColor: const Color(0xffee6C4C),
+        accentColor: const Color(0xff3d5a80),
         cardColor: const Color(0xff3d5a80),
         backgroundColor: const Color(0xff424242),
         errorColor: Colors.redAccent,

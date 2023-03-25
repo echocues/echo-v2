@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:echocues/api/models/event.dart';
-import 'package:echocues/api/models/event_time.dart';
 import 'package:echocues/api/models/scene.dart';
 import 'package:echocues/api/models/soundcue.dart';
 import 'package:echocues/api/server_caller.dart';
@@ -17,7 +16,8 @@ class PlaymodeViewport extends StatefulWidget {
   final List<SceneModel> scenes;
   final List<SoundCue> soundCues;
 
-  const PlaymodeViewport({Key? key, this.scene, required this.scenes, required this.soundCues})
+  const PlaymodeViewport(
+      {Key? key, this.scene, required this.scenes, required this.soundCues})
       : super(key: key);
 
   @override
@@ -25,7 +25,7 @@ class PlaymodeViewport extends StatefulWidget {
 }
 
 class _PlaymodeViewportState extends State<PlaymodeViewport> {
-  
+
   SceneModel? _editingScene;
   Stopwatch? _timeRunner;
   Timer? _timeWatcher;
@@ -40,6 +40,12 @@ class _PlaymodeViewportState extends State<PlaymodeViewport> {
 
   @override
   Widget build(BuildContext context) {
+    if (_editingScene != null) {
+      if (!widget.scenes.contains(_editingScene)) {
+        _editingScene = null;
+      }
+    }
+    
     if (_editingScene == null) {
       return Stack(
         children: [
@@ -53,79 +59,139 @@ class _PlaymodeViewportState extends State<PlaymodeViewport> {
 
     return Stack(
       children: [
-        ListView(
-          children: eventsNeedResolving.map((event) {
-            return Container(
-              color: Theme.of(context).colorScheme.background,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ...event.cues.map((e) => _PlayCueButton(soundCue: widget.soundCues.firstWhere((element) => element.identifier == e)))
-                ],
-              ),
-            );
-          }).toList(),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: ListView(
+            children: eventsNeedResolving.map((event) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 24.0),
+                child: Ink(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.background,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Stack(
+                      children: [
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: TextHelper.largeText(context, "Cues"),
+                            ),
+                            ...event.cues.map((e) => _PlayCueButton(soundCue: widget.soundCues.firstWhere((element) => element.identifier == e))),
+                            const SizedBox(
+                              height: 12,
+                            ),
+                            
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: TextHelper.largeText(context, "Notes"),
+                            ),
+                            ...event.notes.map((e) => Padding(
+                              padding: const EdgeInsets.only(left: 16.0),
+                              child: TextHelper.normal(context, "\u2022  $e"),
+                            )),
+                          ],
+                        ),
+                        Align(
+                          alignment: Alignment.topRight,
+                          child: IconButton(
+                            onPressed: () => setState(() => eventsNeedResolving.remove(event)),
+                            icon: const Icon(Icons.delete),
+                            splashRadius: 24,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
         ),
         _newPlaybackControl(),
       ],
     );
   }
-  
+
   Widget _newPlaybackControl() {
     return _PlayModeControls(
       scenes: widget.scenes,
-      onReset: () {
-        setState(() {
-          _timeRunner?.stop();
-          _timeRunner = null;
-          
-          _timeWatcher?.cancel();
-          _timeWatcher = null;
-        });
-      },
       onSelectScene: (scene) {
         setState(() {
           _editingScene = scene;
         });
       },
+      onReset: () {
+        setState(() {
+          eventsNeedResolving.clear();
+
+          _timeWatcher?.cancel();
+          _timeWatcher = null;
+
+          _timeRunner?.stop();
+          _timeRunner = null;
+        });
+      },
       onStart: () {
         setState(() {
-          _timeWatcher = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+          _timeWatcher = Timer.periodic(const Duration(seconds: 1), (timer) {
+
             _timeRunner ??= Stopwatch();
             _timeRunner!.start();
-            
-            var currentTime = EventTime.fromSeconds(_timeRunner!.elapsed.inSeconds);
-            var newEvents = widget.scene!.events.where((element) => element.time == currentTime);
-            
-            for (var event in newEvents) {
+
+            var added = false;
+
+            for (var event in _editingScene!.events.where((element) =>
+            element.time.toSeconds() == _timeRunner!.elapsed.inSeconds)) {
+              if (eventsNeedResolving.contains(event)) continue;
               eventsNeedResolving.add(event);
+              added = true;
             }
-            
-            if (newEvents.isNotEmpty) {
+
+            print("Hello ${_timeRunner!.elapsed.inSeconds}");
+
+            if (added) {
               setState(() {});
             }
           });
         });
       },
+      onPause: () {
+        setState(() {
+          _timeRunner?.stop();
+          _timeWatcher?.cancel();
+          _timeWatcher = null;
+        });
+      },
       currentScene: _editingScene,
+      isPlaying: _timeWatcher == null ? false : _timeWatcher!.isActive,
     );
   }
 }
 
 class _PlayModeControls extends StatelessWidget {
+
   final SceneModel? currentScene;
   final List<SceneModel> scenes;
   final VoidCallback onReset;
   final VoidCallback onStart;
+  final VoidCallback onPause;
   final Function(SceneModel) onSelectScene;
+  final bool isPlaying;
 
-  const _PlayModeControls(
-      {Key? key,
-      required this.scenes,
-      required this.onReset,
-      required this.onSelectScene,
-      required this.onStart,
-      required this.currentScene})
+  const _PlayModeControls({Key? key,
+    required this.scenes,
+    required this.onReset,
+    required this.onSelectScene,
+    required this.onStart,
+    required this.currentScene,
+    required this.isPlaying,
+    required this.onPause,})
       : super(key: key);
 
   @override
@@ -153,17 +219,17 @@ class _PlayModeControls extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TextButton(
-                      onPressed: onStart,
+                      onPressed: currentScene == null ? null : (!isPlaying ? onStart : onPause),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.start),
-                          TextHelper.normal(context, "Start"),
+                          Icon(!isPlaying ? Icons.start : Icons.pause),
+                          TextHelper.normal(context, !isPlaying ? "Start" : "Pause"),
                         ],
                       ),
                     ),
                     TextButton(
-                      onPressed: onReset,
+                      onPressed: currentScene == null ? null : onReset,
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -242,8 +308,9 @@ class _PlayCueButtonState extends State<_PlayCueButton> {
             });
           },
           icon: Icon(playing ? Icons.pause : Icons.play_arrow),
+          splashRadius: 24,
         ),
-        TextHelper.normal(context, widget.soundCue.fileName)
+        TextHelper.normal(context, widget.soundCue.fileName),
       ],
     );
   }
@@ -254,11 +321,10 @@ class _SelectSceneDropdown extends StatefulWidget {
   final Function(SceneModel) onChanged;
   final SceneModel? currentScene;
 
-  const _SelectSceneDropdown(
-      {Key? key,
-      required this.scenes,
-      required this.onChanged,
-      required this.currentScene})
+  const _SelectSceneDropdown({Key? key,
+    required this.scenes,
+    required this.onChanged,
+    required this.currentScene})
       : super(key: key);
 
   @override
@@ -281,7 +347,10 @@ class _SelectSceneDropdownState extends State<_SelectSceneDropdown> {
             widget.scenes.firstWhere((element) => element.name == val));
       },
       value: widget.currentScene?.name,
-      style: Theme.of(context).textTheme.bodyMedium,
+      style: Theme
+          .of(context)
+          .textTheme
+          .bodyMedium,
       hint: TextHelper.normal(context, "Select A Scene"),
     );
   }
