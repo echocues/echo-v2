@@ -78,23 +78,22 @@ class _PlaymodeViewportState extends State<PlaymodeViewport> {
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8.0),
-                              child: TextHelper.largeText(context, "Cues"),
-                            ),
-                            ...event.cues.map((e) => _PlayCueButton(soundCue: widget.soundCues.firstWhere((element) => element.identifier == e))),
-                            const SizedBox(
-                              height: 12,
-                            ),
+                            if (event.cues.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8.0),
+                                child: TextHelper.largeText(context, "Cues"),
+                              ),
+                              ...event.cues.map((e) => _PlayCueButton(soundCue: widget.soundCues.firstWhere((element) => element.identifier == e))),
                             
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8.0),
-                              child: TextHelper.largeText(context, "Notes"),
-                            ),
-                            ...event.notes.map((e) => Padding(
-                              padding: const EdgeInsets.only(left: 16.0),
-                              child: TextHelper.normal(context, "\u2022  $e"),
-                            )),
+                            if (event.notes.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8.0),
+                                child: TextHelper.largeText(context, "Notes"),
+                              ),
+                              ...event.notes.map((e) => Padding(
+                                padding: const EdgeInsets.only(left: 16.0),
+                                child: TextHelper.normal(context, "\u2022  $e"),
+                              )),
                           ],
                         ),
                         Align(
@@ -152,8 +151,6 @@ class _PlaymodeViewportState extends State<PlaymodeViewport> {
               eventsNeedResolving.add(event);
               added = true;
             }
-
-            print("Hello ${_timeRunner!.elapsed.inSeconds}");
 
             if (added) {
               setState(() {});
