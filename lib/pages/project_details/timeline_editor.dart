@@ -111,7 +111,7 @@ class _TimelineEditorState extends State<TimelineEditor> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(_timeRunner == null ? Icons.play_arrow_outlined : Icons.pause_outlined),
-                        TextHelper.normal(ctx, "Run Timeline"),
+                        TextHelper.normal(ctx, _timeRunner == null ? "Run Timeline" : "Pause Timeline"),
                       ],
                     ),
                   ),
