@@ -91,9 +91,7 @@ class _SoundCueButtonState extends State<SoundCueButton> {
   @override
   void initState() {
     super.initState();
-    _audioPlayer = AudioManager(
-      audioPlayer: AudioPlayer(),
-    );
+    _audioPlayer = AudioManager();
   }
 
   @override

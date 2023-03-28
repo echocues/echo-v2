@@ -7,11 +7,11 @@ import 'package:echocues/api/models/soundcue.dart';
 import 'package:echocues/utilities/utils.dart';
 
 class AudioManager {
-  final AudioPlayer audioPlayer;
-
-  AudioManager({
-    required this.audioPlayer,
-  });
+  late AudioPlayer audioPlayer;
+  
+  AudioManager() {
+    audioPlayer = AudioPlayer();
+  }
 
   double? totalDuration;
   bool endPremature = false;
@@ -35,12 +35,14 @@ class AudioManager {
   }
 
   Future<void> start(Source source, SoundCue soundCue, {Duration? position, VoidCallback? onComplete}) async {
+    if (audioPlayer.source == null || audioPlayer.source != source) {
+      await audioPlayer.setSource(source);
+    }
+    
     await audioPlayer.setPlaybackRate(soundCue.speed);
-    await audioPlayer.play(
-      source,
-      volume: 0,
-      position: position,
-    );
+    await audioPlayer.setVolume(0);
+    await audioPlayer.seek(position ?? Duration.zero);
+    await audioPlayer.resume();
 
     if (!soundCue.easeIn.enabled) {
       await audioPlayer.setVolume(soundCue.volume);
@@ -99,7 +101,7 @@ class AudioManager {
       await audioPlayer.setVolume(eval(mappedValue, soundCue.volume));
 
       if (mappedValue <= 0) {
-        await audioPlayer.stop();
+        await audioPlayer.pause();
         fadeOut!.cancel();
         cleanup(onComplete);
       }
@@ -108,7 +110,7 @@ class AudioManager {
 
   Future<void> stop({VoidCallback? onComplete}) async {
     if (fadeOut == null) {
-      audioPlayer.stop();
+      audioPlayer.pause();
       cleanup(onComplete);
       return;
     }

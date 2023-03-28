@@ -262,9 +262,7 @@ class _PlayCueButtonState extends State<_PlayCueButton> {
   @override
   void initState() {
     super.initState();
-    _audioPlayer = AudioManager(
-      audioPlayer: AudioPlayer(),
-    );
+    _audioPlayer = AudioManager();
   }
 
   @override
