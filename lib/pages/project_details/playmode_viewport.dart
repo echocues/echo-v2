@@ -9,7 +9,6 @@ import 'package:echocues/utilities/audio_manager.dart';
 import 'package:echocues/utilities/text_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
 
 class PlaymodeViewport extends StatefulWidget {
   final SceneModel? scene;
@@ -30,12 +29,19 @@ class _PlaymodeViewportState extends State<PlaymodeViewport> {
   Stopwatch? _timeRunner;
   Timer? _timeWatcher;
   late List<EventModel> eventsNeedResolving;
+  late String projectId;
 
   @override
   void initState() {
     super.initState();
     _editingScene = widget.scene;
     eventsNeedResolving = [];
+    assignProjectId();
+  }
+  
+  void assignProjectId() async {
+    var instance = await SharedPreferences.getInstance();
+    projectId = instance.getString("editingProject")!;
   }
 
   @override
@@ -83,7 +89,7 @@ class _PlaymodeViewportState extends State<PlaymodeViewport> {
                                 padding: const EdgeInsets.only(bottom: 8.0),
                                 child: TextHelper.largeText(context, "Cues"),
                               ),
-                              ...event.cues.map((e) => _PlayCueButton(soundCue: widget.soundCues.firstWhere((element) => element.identifier == e))),
+                              ...event.cues.map((e) => _PlayCueButton(projectId: projectId, soundCue: widget.soundCues.firstWhere((element) => element.identifier == e))),
                             
                             if (event.notes.isNotEmpty)
                               Padding(
@@ -117,6 +123,13 @@ class _PlaymodeViewportState extends State<PlaymodeViewport> {
     );
   }
 
+  String _printDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
+  }
+  
   Widget _newPlaybackControl() {
     return _PlayModeControls(
       scenes: widget.scenes,
@@ -138,23 +151,16 @@ class _PlaymodeViewportState extends State<PlaymodeViewport> {
       },
       onStart: () {
         setState(() {
+          _timeRunner ??= Stopwatch();
+          _timeRunner!.start();
+          
           _timeWatcher = Timer.periodic(const Duration(seconds: 1), (timer) {
-
-            _timeRunner ??= Stopwatch();
-            _timeRunner!.start();
-
-            var added = false;
-
-            for (var event in _editingScene!.events.where((element) =>
-            element.time.toSeconds() == _timeRunner!.elapsed.inSeconds)) {
+            for (var event in _editingScene!.events.where((element) => element.time.toSeconds() == _timeRunner!.elapsed.inSeconds)) {
               if (eventsNeedResolving.contains(event)) continue;
               eventsNeedResolving.add(event);
-              added = true;
             }
 
-            if (added) {
-              setState(() {});
-            }
+            setState(() {});
           });
         });
       },
@@ -166,7 +172,8 @@ class _PlaymodeViewportState extends State<PlaymodeViewport> {
         });
       },
       currentScene: _editingScene,
-      isPlaying: _timeWatcher == null ? false : _timeWatcher!.isActive,
+      isPlaying: _timeWatcher == null ? false : _timeWatcher!.isActive, 
+      timeString: _timeRunner != null ? _printDuration(_timeRunner!.elapsed) : "00:00:00",
     );
   }
 }
@@ -180,6 +187,7 @@ class _PlayModeControls extends StatelessWidget {
   final VoidCallback onPause;
   final Function(SceneModel) onSelectScene;
   final bool isPlaying;
+  final String timeString;
 
   const _PlayModeControls({Key? key,
     required this.scenes,
@@ -188,7 +196,8 @@ class _PlayModeControls extends StatelessWidget {
     required this.onStart,
     required this.currentScene,
     required this.isPlaying,
-    required this.onPause,})
+    required this.onPause, 
+    required this.timeString,})
       : super(key: key);
 
   @override
@@ -207,6 +216,7 @@ class _PlayModeControls extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                TextHelper.normal(context, "Time: $timeString"),
                 _SelectSceneDropdown(
                   scenes: scenes,
                   onChanged: onSelectScene,
@@ -248,8 +258,9 @@ class _PlayModeControls extends StatelessWidget {
 
 class _PlayCueButton extends StatefulWidget {
   final SoundCue soundCue;
+  final String projectId;
 
-  const _PlayCueButton({Key? key, required this.soundCue}) : super(key: key);
+  const _PlayCueButton({Key? key, required this.soundCue, required this.projectId}) : super(key: key);
 
   @override
   State<_PlayCueButton> createState() => _PlayCueButtonState();
@@ -263,6 +274,7 @@ class _PlayCueButtonState extends State<_PlayCueButton> {
   void initState() {
     super.initState();
     _audioPlayer = AudioManager();
+    _audioPlayer.preload(ServerCaller.audioSource(widget.projectId, widget.soundCue.fileName));
   }
 
   @override
@@ -288,13 +300,8 @@ class _PlayCueButtonState extends State<_PlayCueButton> {
               });
               return;
             }
-
-            var instance = await SharedPreferences.getInstance();
-            var projectId = instance.getString("editingProject");
-
-            await _audioPlayer.start(
-                ServerCaller.audioSource(projectId!, widget.soundCue.fileName),
-                widget.soundCue, onComplete: () {
+            
+            await _audioPlayer.start(null, widget.soundCue, onComplete: () {
               setState(() => playing = false);
             });
 
