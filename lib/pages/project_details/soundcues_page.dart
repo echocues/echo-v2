@@ -92,7 +92,7 @@ class _SoundCueButtonState extends State<SoundCueButton> {
   void initState() {
     super.initState();
     _audioPlayer = AudioManager(
-      audioPlayer: AudioPlayer(playerId: const Uuid().v4()),
+      audioPlayer: AudioPlayer(),
     );
   }
 
