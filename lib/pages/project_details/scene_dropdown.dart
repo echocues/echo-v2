@@ -58,7 +58,7 @@ class _SceneDropdownState extends State<SceneDropdown> {
             showDialog(
               context: context,
               builder: (dialogContext) {
-                return _CreateSceneDialog(
+                return _TextDialog(
                   onConfirm: (name) {
                     setState(() {
                       var scene = SceneModel(name: name, events: []);
@@ -69,7 +69,9 @@ class _SceneDropdownState extends State<SceneDropdown> {
                   },
                   onCancel: () {
                     Navigator.pop(dialogContext);
-                  },
+                  }, 
+                  title: "Create Scene",
+                  defaultValue: "New Scene",
                 );
               },
             );
@@ -77,12 +79,34 @@ class _SceneDropdownState extends State<SceneDropdown> {
           child: TextHelper.normal(context, "Create Scene"),
         ),
         TextButton(
-          onPressed: () {
-            if (editingModel == null) return;
+          onPressed: editingModel == null ? null : () {
             widget.scenes.remove(editingModel);
             _setEditingScene(widget.scenes.isEmpty ? null : widget.scenes.first);
           },
           child: TextHelper.normal(context, "Delete Scene"),
+        ),
+        TextButton(
+          onPressed: editingModel == null ? null : () {
+            showDialog(
+              context: context,
+              builder: (dialogContext) {
+                return _TextDialog(
+                  onConfirm: (name) {
+                    setState(() {
+                      editingModel!.name = name;
+                    });
+                    Navigator.pop(dialogContext);
+                  },
+                  onCancel: () {
+                    Navigator.pop(dialogContext);
+                  },
+                  title: "Rename Scene",
+                  defaultValue: editingModel!.name,
+                );
+              },
+            );
+          },
+          child: TextHelper.normal(context, "Rename Scene"),
         )
       ],
     );
@@ -94,36 +118,38 @@ class _SceneDropdownState extends State<SceneDropdown> {
   }
 }
 
-class _CreateSceneDialog extends StatefulWidget {
+class _TextDialog extends StatefulWidget {
   final Function(String) onConfirm;
   final VoidCallback? onCancel;
+  final String title;
+  final String defaultValue;
 
-  const _CreateSceneDialog({Key? key, required this.onConfirm, this.onCancel})
+  const _TextDialog({Key? key, required this.onConfirm, this.onCancel, required this.title, required this.defaultValue})
       : super(key: key);
 
   @override
-  State<_CreateSceneDialog> createState() => _CreateSceneDialogState();
+  State<_TextDialog> createState() => _TextDialogState();
 }
 
-class _CreateSceneDialogState extends State<_CreateSceneDialog> {
+class _TextDialogState extends State<_TextDialog> {
   late String value;
 
   @override
   void initState() {
     super.initState();
-    value = "New Scene";
+    value = widget.defaultValue;
   }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: TextHelper.title(context, "Create Scene"),
+      title: TextHelper.title(context, widget.title),
       content: Padding(
         padding: const EdgeInsets.only(bottom: 8.0),
         child: ValidatedTextField<String>(
-            defaultValue: "New Scene",
+            defaultValue: widget.defaultValue,
             value: value,
-            validator: (str) => str.isEmpty ? "New Scene" : str,
+            validator: (str) => str.isEmpty ? widget.defaultValue : str,
             onChanged: (str) => value = str,
             label: "Title"),
       ),
