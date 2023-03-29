@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:echocues/api/models/event.dart';
@@ -28,14 +29,14 @@ class _PlaymodeViewportState extends State<PlaymodeViewport> {
   SceneModel? _editingScene;
   Stopwatch? _timeRunner;
   Timer? _timeWatcher;
-  late List<EventModel> eventsNeedResolving;
+  late List<_EventWrapper> eventsShown;
   late String projectId;
 
   @override
   void initState() {
     super.initState();
     _editingScene = widget.scene;
-    eventsNeedResolving = [];
+    eventsShown = [];
     assignProjectId();
   }
   
@@ -68,12 +69,14 @@ class _PlaymodeViewportState extends State<PlaymodeViewport> {
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: ListView(
-            children: eventsNeedResolving.map((event) {
+            children: eventsShown.map((event) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 24.0),
                 child: Ink(
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.background,
+                    color: event.notified ? 
+                            Theme.of(context).colorScheme.secondary : 
+                            Theme.of(context).colorScheme.background,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Padding(
@@ -84,19 +87,19 @@ class _PlaymodeViewportState extends State<PlaymodeViewport> {
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (event.cues.isNotEmpty)
+                            if (event.event.cues.isNotEmpty)
                               Padding(
                                 padding: const EdgeInsets.only(bottom: 8.0),
                                 child: TextHelper.largeText(context, "Cues"),
                               ),
-                              ...event.cues.map((e) => _PlayCueButton(projectId: projectId, soundCue: widget.soundCues.firstWhere((element) => element.identifier == e))),
+                              ...event.event.cues.map((e) => _PlayCueButton(projectId: projectId, soundCue: widget.soundCues.firstWhere((element) => element.identifier == e))),
                             
-                            if (event.notes.isNotEmpty)
+                            if (event.event.notes.isNotEmpty)
                               Padding(
                                 padding: const EdgeInsets.only(bottom: 8.0),
                                 child: TextHelper.largeText(context, "Notes"),
                               ),
-                              ...event.notes.map((e) => Padding(
+                              ...event.event.notes.map((e) => Padding(
                                 padding: const EdgeInsets.only(left: 16.0),
                                 child: TextHelper.normal(context, "\u2022  $e"),
                               )),
@@ -105,7 +108,7 @@ class _PlaymodeViewportState extends State<PlaymodeViewport> {
                         Align(
                           alignment: Alignment.topRight,
                           child: IconButton(
-                            onPressed: () => setState(() => eventsNeedResolving.remove(event)),
+                            onPressed: () => setState(() => eventsShown.remove(event)),
                             icon: const Icon(Icons.delete),
                             splashRadius: 24,
                           ),
@@ -140,7 +143,7 @@ class _PlaymodeViewportState extends State<PlaymodeViewport> {
       },
       onReset: () {
         setState(() {
-          eventsNeedResolving.clear();
+          eventsShown.clear();
 
           _timeWatcher?.cancel();
           _timeWatcher = null;
@@ -150,16 +153,31 @@ class _PlaymodeViewportState extends State<PlaymodeViewport> {
         });
       },
       onStart: () {
+        var sortedEvents = List.of(_editingScene!.events);
+        sortedEvents.sort((a, b) => a.time.toSeconds().compareTo(b.time.toSeconds()));
+
+        for (var event in sortedEvents) {
+            if (eventsShown.any((e) => e.event == event)) continue;
+            eventsShown.add(_EventWrapper(event, false));
+        }
+
         setState(() {
           _timeRunner ??= Stopwatch();
           _timeRunner!.start();
-          
+         
+          for (var event in eventsShown.where((element) => element.event.time.toSeconds() == 0)) {
+            event.notified = true;
+          }
+
           _timeWatcher = Timer.periodic(const Duration(seconds: 1), (timer) {
-            for (var event in _editingScene!.events.where((element) => element.time.toSeconds() == _timeRunner!.elapsed.inSeconds)) {
-              if (eventsNeedResolving.contains(event)) continue;
-              eventsNeedResolving.add(event);
+            var change = false;
+            
+            for (var event in eventsShown.where((element) => element.event.time.toSeconds() == _timeRunner!.elapsed.inSeconds)) {
+                event.notified = true;
+                change = true;
             }
 
+            if (!change) return;
             setState(() {});
           });
         });
@@ -176,6 +194,13 @@ class _PlaymodeViewportState extends State<PlaymodeViewport> {
       timeString: _timeRunner != null ? _printDuration(_timeRunner!.elapsed) : "00:00:00",
     );
   }
+}
+
+class _EventWrapper {
+    final EventModel event;
+    bool notified;
+
+    _EventWrapper(this.event, this.notified);
 }
 
 class _PlayModeControls extends StatelessWidget {
@@ -301,7 +326,7 @@ class _PlayCueButtonState extends State<_PlayCueButton> {
               return;
             }
             
-            await _audioPlayer.start(null, widget.soundCue, onComplete: () {
+            await _audioPlayer.start(ServerCaller.audioSource(widget.projectId, widget.soundCue.fileName), widget.soundCue, onComplete: () {
               setState(() => playing = false);
             });
 
