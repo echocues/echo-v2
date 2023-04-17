@@ -1,0 +1,30 @@
+name: Build Flutter Web
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    name: Build Web
+    env:
+      my_secret: ${{secrets.token}}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: 'dev'
+      - run: flutter config --enable-web
+      - run: flutter pub get
+      - run: flutter build web --release
+      - run: |
+          cd build/web
+          git init
+          git config --global user.email w1nter.ish3re@gmail.com
+          git config --global user.name W1nter-IsHere
+          git status
+          git remote add origin https://${{secrets.token}}@github.com/echocues/echocues.github.io.git
+          git checkout -b main
+          git add .
+          git commit -m "Check https://github.com/echocues/echo_app for changes"
+          git push origin main -f
