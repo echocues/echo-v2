@@ -25,6 +25,8 @@ class PlaymodeViewport extends StatefulWidget {
 
 class _PlaymodeViewportState extends State<PlaymodeViewport> {
 
+  final GlobalKey<_PlayModeControlsState> _playModeControl = GlobalKey();
+  
   SceneModel? _editingScene;
   Stopwatch? _timeRunner;
   Timer? _timeWatcher;
@@ -124,17 +126,11 @@ class _PlaymodeViewportState extends State<PlaymodeViewport> {
       ],
     );
   }
-
-  String _printDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, "0");
-    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
-    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-    return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
-  }
   
   Widget _newPlaybackControl() {
     return _PlayModeControls(
       scenes: widget.scenes,
+      key: _playModeControl,
       onSelectScene: (scene) {
         setState(() {
           _editingScene = scene;
@@ -168,7 +164,7 @@ class _PlaymodeViewportState extends State<PlaymodeViewport> {
             event.notified = true;
           }
 
-          _timeWatcher = Timer.periodic(const Duration(seconds: 1), (timer) {
+          _timeWatcher = Timer.periodic(const Duration(milliseconds: 750), (timer) {
             var change = false;
             
             for (var event in eventsShown.where((element) => element.event.time.toSeconds() == _timeRunner!.elapsed.inSeconds)) {
@@ -176,6 +172,7 @@ class _PlaymodeViewportState extends State<PlaymodeViewport> {
                 change = true;
             }
 
+            _playModeControl.currentState?.setState(() {});
             if (!change) return;
             setState(() {});
           });
@@ -190,7 +187,7 @@ class _PlaymodeViewportState extends State<PlaymodeViewport> {
       },
       currentScene: _editingScene,
       isPlaying: _timeWatcher == null ? false : _timeWatcher!.isActive, 
-      timeString: _timeRunner != null ? _printDuration(_timeRunner!.elapsed) : "00:00:00",
+      timer: _timeRunner,
     );
   }
 }
@@ -202,7 +199,7 @@ class _EventWrapper {
     _EventWrapper(this.event, this.notified);
 }
 
-class _PlayModeControls extends StatelessWidget {
+class _PlayModeControls extends StatefulWidget {
 
   final SceneModel? currentScene;
   final List<SceneModel> scenes;
@@ -211,7 +208,7 @@ class _PlayModeControls extends StatelessWidget {
   final VoidCallback onPause;
   final Function(SceneModel) onSelectScene;
   final bool isPlaying;
-  final String timeString;
+  final Stopwatch? timer;
 
   const _PlayModeControls({Key? key,
     required this.scenes,
@@ -221,9 +218,14 @@ class _PlayModeControls extends StatelessWidget {
     required this.currentScene,
     required this.isPlaying,
     required this.onPause, 
-    required this.timeString,})
+    required this.timer,})
       : super(key: key);
 
+  @override
+  State<_PlayModeControls> createState() => _PlayModeControlsState();
+}
+
+class _PlayModeControlsState extends State<_PlayModeControls> {
   @override
   Widget build(BuildContext context) {
     return Align(
@@ -240,27 +242,27 @@ class _PlayModeControls extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextHelper.normal(context, "Time: $timeString"),
+                TextHelper.normal(context, "Time: ${widget.timer == null ? "00:00:00" : _printDuration(widget.timer!.elapsed)}"),
                 _SelectSceneDropdown(
-                  scenes: scenes,
-                  onChanged: onSelectScene,
-                  currentScene: currentScene,
+                  scenes: widget.scenes,
+                  onChanged: widget.onSelectScene,
+                  currentScene: widget.currentScene,
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TextButton(
-                      onPressed: currentScene == null ? null : (!isPlaying ? onStart : onPause),
+                      onPressed: widget.currentScene == null ? null : (!widget.isPlaying ? widget.onStart : widget.onPause),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(!isPlaying ? Icons.start : Icons.pause),
-                          TextHelper.normal(context, !isPlaying ? "Start" : "Pause"),
+                          Icon(!widget.isPlaying ? Icons.start : Icons.pause),
+                          TextHelper.normal(context, !widget.isPlaying ? "Start" : "Pause"),
                         ],
                       ),
                     ),
                     TextButton(
-                      onPressed: currentScene == null ? null : onReset,
+                      onPressed: widget.currentScene == null ? null : widget.onReset,
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -277,6 +279,13 @@ class _PlayModeControls extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _printDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
   }
 }
 
