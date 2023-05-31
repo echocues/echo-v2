@@ -22,7 +22,7 @@ jobs:
         with:
           source-directory: 'build/web'
           destination-github-username: 'echocues'
-          destination-repository-name: 'echocues.github.io'
+          destination-repository-name: 'legacy'
           user-email: w1nter.ish3re@gmail.com
           target-branch: main
           
